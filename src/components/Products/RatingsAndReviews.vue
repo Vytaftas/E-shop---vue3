@@ -10,16 +10,7 @@
                 <span class="rating-date">{{ rating.expand.user_id.name }}, {{ formattedDate(rating.created) }}</span>
             </div>
 
-            <div class="ratings-pagination" v-if="paginationData().pages > 1">
-                <span
-                    class="page-button"
-                    :class="{ selected: currentPage === page }"
-                    v-for="page of paginationData().pages"
-                    :key="page"
-                    @click="currentPage = page"
-                    >{{ page }}</span
-                >
-            </div>
+            <Pagination :paginationData="paginationData()" @page-change="(page) => (currentPage = page)" />
         </div>
 
         <div class="message">
@@ -36,6 +27,7 @@ import StarRating from './StarRating.vue';
 import ProductRatingForm from '../Forms/ProductRatingForm.vue';
 import { useStore } from 'vuex';
 import { computed, ref, watch } from 'vue';
+import Pagination from '../Pagination.vue';
 
 const store = useStore();
 
@@ -53,9 +45,9 @@ const currentPage = ref(1);
 const paginationData = (perPage = 5) => {
     if (!props.product.expand['product_ratings(product_id)']) return false;
 
-    const pages = Math.ceil(props.product.expand['product_ratings(product_id)'].length / perPage);
+    const totalPages = Math.ceil(props.product.expand['product_ratings(product_id)'].length / perPage);
 
-    return { pages, perPage };
+    return { totalPages, perPage };
 };
 
 const reviews = computed(() => {
@@ -132,33 +124,5 @@ h3 {
 
 .rating-date {
     font-size: 12px;
-}
-
-/*  */
-
-.ratings-pagination {
-    display: flex;
-    gap: 5px;
-    margin-top: 30px;
-}
-.page-button {
-    cursor: pointer;
-    transition: 0.2s;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    text-decoration: underline;
-    text-decoration-color: transparent;
-}
-.page-button.selected {
-    background-color: rgb(255, 123, 0);
-    color: white;
-}
-
-.page-button:not(.selected):hover {
-    text-decoration-color: inherit;
 }
 </style>

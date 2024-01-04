@@ -22,7 +22,6 @@
     display: grid;
     grid-template-columns: 200px 1fr;
     height: 100vh;
-    /* max-height: 100vh; */
 }
 .sidebar {
     background-color: #1f5fab;
@@ -45,6 +44,6 @@
 }
 
 .content {
-    overflow: scroll;
+    overflow: auto;
 }
 </style>

@@ -10,7 +10,7 @@
                 <div>SKU</div>
                 <div>Price</div>
                 <div>Categories</div>
-                <div>Created At</div>
+                <div>Created</div>
                 <div class="product-delete-heading">Actions</div>
             </div>
 
@@ -47,7 +47,6 @@
                         </div>
                     </div>
                     <div class="product-created-wrap">
-                        <span>Created</span>
                         <p>{{ productCreatedTime(product.created) }}</p>
                     </div>
                     <div class="product-delete-wrap">
@@ -55,6 +54,7 @@
                     </div>
                 </div>
             </div>
+            <Pagination v-if="paginationData" :paginationData="paginationData" color="rgb(22, 88, 212)" @page-change="handlePageChange" />
             <p v-if="!products.length && !productsLoading" :style="{ margin: 'auto' }">No products found.</p>
         </div>
     </div>
@@ -65,11 +65,14 @@ import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import useProductImage from '../../hooks/useProductImage';
 import LoadingOverlay from '../LoadingOverlay.vue';
+import Pagination from '../Pagination.vue';
 
 const store = useStore();
 
 const products = ref([]);
+const paginationData = ref(null);
 const productsLoading = ref(false);
+const productsPerPage = ref(8);
 
 const productCreatedTime = (timeData) => {
     const data = timeData.split(' ');
@@ -81,11 +84,12 @@ const productCreatedTime = (timeData) => {
     return `${date} ${formattedTime}`;
 };
 
-const getProducts = async () => {
+const getProducts = async ({ page = 1, amount = productsPerPage.value }) => {
     try {
         productsLoading.value = true;
-        const response = await store.dispatch('getProducts', { amount: 25, returnData: true });
+        const response = await store.dispatch('getProducts', { page, amount, returnData: true });
         products.value = response.items;
+        paginationData.value = response.paginationData;
     } catch (error) {
         console.log(error);
     } finally {
@@ -97,7 +101,13 @@ const handleProductDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
         try {
             await store.dispatch('deleteProduct', id);
-            getProducts();
+            const { page, perPage, totalItems } = paginationData.value;
+
+            let pageToSend = page;
+
+            if (page !== 1 && perPage === totalItems - 1) pageToSend = page - 1;
+
+            getProducts({ page: pageToSend });
         } catch (error) {
             console.log(error);
         }
@@ -105,7 +115,7 @@ const handleProductDelete = async (id) => {
 };
 
 const handleDuplicateProduct = async (product) => {
-    const { categories, description, discount_price, gallery_images, image, meta_data, name, price } = product;
+    const { categories, description, discount_price, meta_data, name, price } = product;
 
     const productData = {
         categories,
@@ -118,14 +128,18 @@ const handleDuplicateProduct = async (product) => {
 
     try {
         await store.dispatch('addProduct', productData);
-        getProducts();
+        getProducts({ page: paginationData.value.page });
     } catch (error) {
         console.log(error);
     }
 };
 
+const handlePageChange = (page) => {
+    getProducts({ page });
+};
+
 onMounted(async () => {
-    getProducts();
+    getProducts({});
 });
 </script>
 
