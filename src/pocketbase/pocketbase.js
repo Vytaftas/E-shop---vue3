@@ -1,6 +1,6 @@
 import PocketBase from 'pocketbase';
 
-const url = 'https://my-shop-app.pockethost.io/';
+const url = DB_URL;
 export const PocketBaseDB = new PocketBase(url);
 
 (async () => {

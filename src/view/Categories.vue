@@ -34,7 +34,7 @@ onMounted(async () => {
 });
 </script>
 
-<style setup>
+<style scoped>
 .categories-wrap {
     position: relative;
     display: flex;
