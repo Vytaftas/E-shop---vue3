@@ -2,11 +2,11 @@
     <div class="dashboard">
         <div class="sidebar">
             <nav>
-                <router-link class="sidebar-link" to="manage-products">Products</router-link>
+                <router-link class="sidebar-link" to="/admin-dashboard/manage-products">Products</router-link>
 
-                <router-link class="sidebar-link" to="manage-categories">Categories</router-link>
+                <router-link class="sidebar-link" to="/admin-dashboard/manage-categories">Categories</router-link>
 
-                <router-link class="sidebar-link" to="manage-users">Users</router-link>
+                <router-link class="sidebar-link" to="/admin-dashboard/manage-users">Users</router-link>
 
                 <span class="sidebar-link">Atsijungti</span>
             </nav>
