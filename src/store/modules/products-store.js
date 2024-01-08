@@ -164,6 +164,50 @@ const actions = {
             // });
         }
     },
+    async updateReview({ commit, dispatch }, data) {
+        try {
+            const review = await this.$db_api.updateReview(data);
+
+            return review;
+
+            // commit('SET_PRODUCTS', products.items);
+            // commit('SET_PAGINATION_DATA', products.paginationData);
+
+            // dispatch('addNotification', {
+            //     message: 'Vartotojas sėkmingai atnaujintas',
+            //     type: 'success',
+            // });
+        } catch (error) {
+            console.log(error);
+            // console.log(error);
+            // dispatch('addNotification', {
+            //     message: 'Nepavyko atnaujinti vartotojo',
+            //     type: 'error',
+            // });
+        }
+    },
+    async deleteReview({ commit, dispatch }, id) {
+        try {
+            const review = await this.$db_api.deleteReview(id);
+
+            return review;
+
+            // commit('SET_PRODUCTS', products.items);
+            // commit('SET_PAGINATION_DATA', products.paginationData);
+
+            // dispatch('addNotification', {
+            //     message: 'Vartotojas sėkmingai atnaujintas',
+            //     type: 'success',
+            // });
+        } catch (error) {
+            console.log(error);
+            // console.log(error);
+            // dispatch('addNotification', {
+            //     message: 'Nepavyko atnaujinti vartotojo',
+            //     type: 'error',
+            // });
+        }
+    },
 };
 
 const mutations = {

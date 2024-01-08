@@ -2,8 +2,8 @@
     <div class="pagination" v-if="paginationData?.totalPages > 1">
         <span
             class="page-button"
-            :class="{ selected: currentPage === page }"
-            :style="{ backgroundColor: currentPage === page ? color : 'transparent' }"
+            :class="{ selected: currentPage.value ? currentPage.value === page : currentPage === page }"
+            :style="{ backgroundColor: currentPage.value ? currentPage.value === page : currentPage === page ? color : 'transparent' }"
             v-for="page of paginationData?.totalPages"
             :key="page"
             @click="handlePageChange(page)"
@@ -25,7 +25,7 @@ const currentPage = computed(() => props.paginationData.page);
 const emit = defineEmits(['page-change']);
 
 const handlePageChange = (page) => {
-    if (page === currentPage) return;
+    // if (page === currentPage.value) return;
     emit('page-change', page);
 };
 </script>
@@ -34,7 +34,6 @@ const handlePageChange = (page) => {
 .pagination {
     display: flex;
     gap: 5px;
-    margin-top: 25px;
 }
 .page-button {
     cursor: pointer;

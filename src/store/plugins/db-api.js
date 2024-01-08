@@ -170,4 +170,19 @@ export const DB_API = (store) =>
                 console.log(error);
             }
         },
+
+        async updateReview({ ratingId, data }) {
+            try {
+                return await PocketBaseDB.collection('product_ratings').update(ratingId, data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async deleteReview(id) {
+            try {
+                return await PocketBaseDB.collection('product_ratings').delete(id);
+            } catch (error) {
+                console.log(error);
+            }
+        },
     });

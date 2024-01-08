@@ -46,8 +46,9 @@ const paginationData = (perPage = 5) => {
     if (!props.product.expand['product_ratings(product_id)']) return false;
 
     const totalPages = Math.ceil(props.product.expand['product_ratings(product_id)'].length / perPage);
+    const pages = Math.floor(props.product.expand['product_ratings(product_id)'].length);
 
-    return { totalPages, perPage };
+    return { totalPages, perPage, page: currentPage };
 };
 
 const reviews = computed(() => {
@@ -120,9 +121,6 @@ h3 {
 }
 .rating-date {
     color: gray;
-}
-
-.rating-date {
     font-size: 12px;
 }
 </style>

@@ -1,9 +1,9 @@
 <template>
-    <form @submit.prevent="handleRatingSubmit">
-        <h3>Add Your Review</h3>
+    <form @submit.prevent="handleRatingSubmit" :style="{ minWidth: data && 'initial' }">
+        <h3 v-if="!data">Add Your Review</h3>
         <div class="single-input-wrapper">
             <label for="title">Rating</label>
-            <StarRating :resetStars="resetStars" @rating-changed="(val) => (rating = val)" />
+            <StarRating :editing="true" :rating="data && data.rating" :resetStars="resetStars" @rating-changed="(val) => (rating = val)" />
             <span class="error-message" v-if="errors.rating">{{ errors.rating }}</span>
         </div>
         <div class="single-input-wrapper">
@@ -13,7 +13,7 @@
             <span class="error-message" v-if="errors.title">{{ errors.title }}</span>
         </div>
         <div class="single-input-wrapper">
-            <label for="content">Your Review</label>
+            <label for="content">{{ data ? 'Review' : 'Your Review' }}</label>
             <textarea
                 name="content"
                 id="content"
@@ -30,8 +30,17 @@
 
         <button type="submit" class="button-main submit-button">
             <LoadingOverlay background="transparent" v-if="loading" size="20px" />
-            {{ loading ? 'Please wait..' : 'Add Review' }}
+
+            <span>{{ loading ? 'Please wait..' : buttonText }}</span>
         </button>
+
+        <span v-if="ratingUpdatedMessage">{{ ratingUpdatedMessage }}</span>
+
+        <button v-if="data" class="delete-rating-button button-main" @click.prevent="emit('delete-review')">
+            <span>Delete Review</span>
+        </button>
+
+        <span v-if="data" class="rating-date">{{ userData.name }}, {{ userData.date }}</span>
     </form>
 </template>
 
@@ -41,8 +50,13 @@ import { useStore } from 'vuex';
 import StarRating from '../Products/StarRating.vue';
 import LoadingOverlay from '../LoadingOverlay.vue';
 
-const props = defineProps({ product: { default: null } });
-const emit = defineEmits(['new-review']);
+const props = defineProps({
+    product: { default: null },
+    data: { default: null },
+    userData: { default: null },
+    ratingUpdatedMessage: { default: '' },
+});
+const emit = defineEmits(['new-review', 'update-review', 'delete-review']);
 
 const store = useStore();
 
@@ -50,9 +64,11 @@ const currentUser = computed(() => store.getters.currentUser);
 
 const loading = ref(false);
 
-const rating = ref(null);
-const title = ref('');
-const content = ref('');
+const rating = ref(props.data ? props.data.rating : null);
+const title = ref(props.data ? props.data.title : '');
+const content = ref(props.data ? props.data.content : '');
+
+const buttonText = computed(() => (props.data ? 'Update' : 'Add Review'));
 
 const resetStars = ref(false);
 
@@ -76,6 +92,7 @@ const handleRatingSubmit = async () => {
     if (loading.value) return;
 
     const isError = !rating.value || !title.value || !content.value;
+
     if (isError) {
         if (!rating.value) errors.rating = 'Please select a rating';
         if (!title.value) errors.title = 'Please enter a title';
@@ -83,24 +100,28 @@ const handleRatingSubmit = async () => {
         return;
     }
 
-    try {
-        loading.value = true;
+    if (props.data) {
+        emit('update-review', { star_rating: rating.value, rating_heading: title.value, rating_text: content.value });
+    } else {
+        try {
+            loading.value = true;
 
-        await store.dispatch('addReview', {
-            star_rating: rating.value,
-            rating_heading: title.value,
-            rating_text: content.value,
-            product_id: props.product.id,
-            user_id: currentUser.value.id,
-        });
+            await store.dispatch('addReview', {
+                star_rating: rating.value,
+                rating_heading: title.value,
+                rating_text: content.value,
+                product_id: props.product.id,
+                user_id: currentUser.value.id,
+            });
 
-        emit('new-review');
+            emit('new-review');
 
-        resetForm();
-    } catch (error) {
-        console.log(error);
-    } finally {
-        loading.value = false;
+            resetForm();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            loading.value = false;
+        }
     }
 };
 </script>
@@ -115,6 +136,7 @@ form {
     border-radius: 5px;
     min-width: 400px;
     background-color: white;
+    position: relative;
 }
 
 h3 {
@@ -158,5 +180,21 @@ p {
 
 .submit-button {
     position: relative;
+}
+
+.delete-rating-button {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    cursor: pointer;
+    background-color: rgb(216, 56, 56);
+}
+.delete-rating-button:hover {
+    background-color: rgb(255, 0, 0);
+}
+
+.rating-date {
+    color: gray;
+    font-size: 12px;
 }
 </style>

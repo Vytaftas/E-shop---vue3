@@ -4,9 +4,9 @@
             v-for="star in 5"
             :key="star"
             class="star"
-            :class="{ filled: star <= currentRating, 'has-rating': rating }"
-            @click="rating ? null : setRating(star)"
-            @mouseover="rating ? null : hover(star)"
+            :class="{ filled: star <= currentRating, 'has-rating': rating && !editing }"
+            @click="rating && !editing ? null : setRating(star)"
+            @mouseover="rating && !editing ? null : hover(star)"
             @mouseleave="stopHover"
         >
             <span v-if="star <= currentRating">&#9733;</span>
@@ -20,6 +20,7 @@ import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
     rating: { default: null },
+    editing: { default: false },
     resetStars: { default: false },
     size: { default: '24px' },
 });
