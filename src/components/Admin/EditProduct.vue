@@ -58,35 +58,67 @@
                     </div>
                 </div>
 
-                <!-- Change v-if -->
-                {{ formData.meta_data }}
                 <div class="single-input-wrap">
                     <h4>Product Meta</h4>
                     <div class="product-meta-data" v-if="formData.meta_data.value">
-                        <div class="single-input-wrap" v-for="(value, key) of formData.meta_data.value" :key="key">
-                            <p class="meta-name input-label">{{ key.charAt(0).toUpperCase() + key.slice(1) }}</p>
+                        <div class="add-new-meta-wrap" @click.prevent="addNewMetaBlock">
+                            <i class="fa-solid fa-square-plus"></i>
+                            <span>Add New</span>
+                        </div>
+                        <div class="single-input-wrap" v-for="(value, dataIndex) of formData.meta_data.value" :key="value.name + '-' + dataIndex">
+                            <i class="fa-solid fa-xmark remove-meta-block-icon" @click.prevent="formData.meta_data.value.splice(dataIndex, 1)"></i>
+                            <div class="meta-heading-wrap">
+                                <input
+                                    type="text"
+                                    :value="formData.meta_data.value[dataIndex].name"
+                                    @change="(e) => (formData.meta_data.value[dataIndex].name = e.target.value)"
+                                    class="meta-name-input"
+                                />
+                                <div class="checkbox-wrap">
+                                    <input
+                                        type="checkbox"
+                                        :id="'color-checkbox-' + dataIndex"
+                                        :checked="formData.meta_data.value[dataIndex].useColors"
+                                        @change="(e) => (formData.meta_data.value[dataIndex].useColors = e.target.checked)"
+                                    />
+                                    <label :for="'color-checkbox-' + dataIndex">Use colors?</label>
+                                </div>
+                            </div>
 
                             <div class="meta-wrap-container">
-                                <div class="single-meta-wrap" v-for="(metaItem, index) of value" :key="metaItem.name + '-' + metaItem.value">
-                                    <div v-if="key === 'color'" class="color-select-input-wrap">
-                                        <input
-                                            type="text"
-                                            :value="formData.meta_data.value[key][index].name"
-                                            @change="handleColorNameChange($event, key, index)"
-                                        />
-                                        <label :for="'color-select-' + index">
-                                            <div class="color-block" :style="{ backgroundColor: formData.meta_data.value[key][index].value }"></div>
+                                <div class="single-meta-wrap" v-for="(metaItem, index) of value.data" :key="metaItem.name + '-' + metaItem.value">
+                                    <div class="color-select-input-wrap">
+                                        <i
+                                            class="fa-solid fa-xmark remove-meta-key-icon"
+                                            @click.prevent="formData.meta_data.value[dataIndex].data.splice(index, 1)"
+                                        ></i>
+                                        <label v-if="value.useColors" :for="'color-select-' + metaItem.name + '-' + metaItem.value + '-' + index">
+                                            <div
+                                                class="color-block"
+                                                :style="{ backgroundColor: formData.meta_data.value[dataIndex].data[index].value }"
+                                            ></div>
                                         </label>
                                         <input
                                             class="color-input"
                                             type="color"
                                             name="color-select"
-                                            :id="'color-select-' + index"
-                                            :value="formData.meta_data.value[key][index].value"
-                                            @change="handleColorChange($event, key, index)"
+                                            :id="'color-select-' + metaItem.name + '-' + metaItem.value + '-' + index"
+                                            :value="formData.meta_data.value[dataIndex].data[index].value"
+                                            @change="handleColorChange($event, dataIndex, index)"
                                         />
-                                        <!-- :value="formData.meta_data[key].value[index].value" -->
+                                        <input
+                                            type="text"
+                                            :value="formData.meta_data.value[dataIndex].data[index].name"
+                                            @change="handleMetaNameChange($event, dataIndex, index)"
+                                        />
                                     </div>
+                                </div>
+
+                                <div
+                                    class="add-new-meta-wrap"
+                                    @click.prevent="() => formData.meta_data.value[dataIndex].data.push({ name: '', value: '' })"
+                                >
+                                    <i class="fa-solid fa-square-plus"></i>
                                 </div>
                             </div>
                         </div>
@@ -198,16 +230,6 @@
                 </div>
             </div>
         </form>
-        <!-- <p class="sku">{{ product.SKU }}</p>
-        <p class="name">{{ product.name }}</p> -->
-        <!-- <p class="categories">{{ product.expand.categories }}</p> -->
-        <!-- <p class="product-ratings">{{ product.expand['product_ratings(product_id)'] }}</p> -->
-        <!-- <p class="description">{{ product.description }}</p> -->
-        <!-- <p class="discount-price">{{ product.discount_price }}</p> -->
-        <!-- <p class="price">{{ product.price }}</p> -->
-        <!-- <p class="image">{{ product.image }}</p> -->
-        <!-- <p class="meta-data">{{ product.gallery_images }}</p> -->
-        <p class="meta-data">{{ product.meta_data }}</p>
     </div>
 </template>
 
@@ -262,12 +284,42 @@ const handleChangeRatingsPage = (val) => {
 };
 
 const handleColorChange = (e, key, index) => {
-    formData.meta_data.value[key][index].value = e.target.value;
-    formData.meta_data.changed = e.target.value !== product.value.meta_data[key][index].value;
+    formData.meta_data.value[key].data[index].value = e.target.value;
+
+    if (!product.value.meta_data[key] || !product.value.meta_data[key].data[index]) {
+        formData.meta_data.changed = true;
+    } else {
+        formData.meta_data.changed = e.target.value !== product.value.meta_data[key].data[index].value;
+    }
 };
-const handleColorNameChange = (e, key, index) => {
-    formData.meta_data.value[key][index].name = e.target.value;
-    formData.meta_data.changed = e.target.value !== product.value.meta_data[key][index].name;
+const handleMetaNameChange = (e, key, index) => {
+    formData.meta_data.value[key].data[index].name = e.target.value;
+
+    if (!formData.meta_data.value[key].useColors) formData.meta_data.value[key].data[index].value = e.target.value;
+
+    if (!product.value.meta_data[key] || !product.value.meta_data[key].data[index]) {
+        formData.meta_data.changed = true;
+    } else {
+        formData.meta_data.changed = e.target.value !== product.value.meta_data[key].data[index].name;
+    }
+};
+const addNewMetaBlock = () => {
+    const isDuplicateKey = (keyName, count = 1) => {
+        const name = keyName + '-' + count;
+
+        const exists = formData.meta_data.value.some((item) => item.name === keyName + '-' + count);
+
+        if (exists) {
+            count++;
+            return isDuplicateKey(keyName, count);
+        }
+
+        return name;
+    };
+
+    const newKeyName = isDuplicateKey('new-meta');
+    // const valueKey = Object.keys(formData.meta_data.value).some((item) => item === 'new-value');
+    formData.meta_data.value.push({ name: newKeyName, data: [], useColors: false });
 };
 
 const checkIfChanged = (key) => {
@@ -435,6 +487,8 @@ const getProduct = async () => {
 
         product.value = response;
 
+        console.log(response);
+
         const responseCopy = JSON.parse(JSON.stringify(response));
 
         for (let key in responseCopy) {
@@ -450,6 +504,7 @@ const getProduct = async () => {
                 }
             }
         }
+        console.log(formData);
     } catch (error) {
         console.log(error);
     } finally {
@@ -757,13 +812,22 @@ h4 {
 .color-select-input-wrap {
     display: flex;
     align-items: center;
-    gap: 10px;
     background-color: white;
-    /* padding: 5px 10px; */
     max-width: 200px;
-    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.089);
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.068);
     border-radius: 3px;
     position: relative;
+    height: 36px;
+}
+
+.color-select-input-wrap label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: rgba(0, 140, 255, 0.11);
+    border-radius: 3px 0 0 3px;
+    cursor: pointer;
 }
 
 .color-select-input-wrap input {
@@ -773,6 +837,9 @@ h4 {
     border-radius: 0;
     outline: none;
     padding: 5px 10px;
+    font-size: 14px;
+    padding-right: 24px;
+    height: 100%;
 }
 /* .color-select-input-wrap input:not(.color-input) {
 } */
@@ -782,10 +849,10 @@ h4 {
 }
 
 .color-block {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
+    width: 18px;
+    height: 18px;
     margin: 5px 10px;
+    border-radius: 100%;
 }
 
 .color-select-input-wrap .color-input {
@@ -794,5 +861,89 @@ h4 {
     position: absolute;
     left: 0;
     top: 0;
+}
+
+.meta-heading-wrap {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-direction: column;
+}
+
+.meta-heading-wrap input {
+    width: unset;
+}
+
+.meta-heading-wrap .checkbox-wrap {
+    display: flex;
+    gap: 5px;
+}
+
+.product-meta-data .single-input-wrap {
+    background-color: #005bff1c;
+    padding: 20px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.remove-meta-block-icon {
+    color: rgba(0, 0, 0, 0.493);
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.remove-meta-block-icon:hover {
+    color: rgb(216, 0, 0);
+}
+
+.remove-meta-key-icon {
+    color: rgba(0, 0, 0, 0.493);
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.remove-meta-key-icon:hover {
+    color: rgb(216, 0, 0);
+}
+
+.add-new-meta-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    cursor: pointer;
+}
+.add-new-meta-wrap:hover i {
+    color: #0059ff;
+}
+
+.add-new-meta-wrap i {
+    font-size: 24px;
+    color: #0050e6;
+    transition: 0.2s;
+}
+
+.left-side .meta-heading-wrap .meta-name-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    outline: none;
+    padding: 0;
+    border-radius: 0;
+    transition: 0.2s;
+    font-weight: 600;
+    font-size: 18px;
+    /* max-width: 100px; */
+}
+
+.left-side .meta-heading-wrap .meta-name-input:focus-visible {
+    border-color: black;
 }
 </style>
