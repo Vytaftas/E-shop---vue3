@@ -14,7 +14,7 @@ import ManageProducts from '../components/Admin/ManageProducts.vue';
 import ManageCategories from '../components/Admin/ManageCategories.vue';
 import ManageUsers from '../components/Admin/ManageUsers.vue';
 import Dashboard from '../components/Admin/Dashboard.vue';
-import EditProduct from '../components/Admin/EditProduct.vue';
+import EditProduct from '../components/Admin/EditProduct/EditProduct.vue';
 
 const routes = [
     {

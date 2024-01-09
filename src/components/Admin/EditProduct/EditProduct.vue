@@ -11,7 +11,7 @@
             <!-- Product name, description, etc.. -->
 
             <div class="left-side">
-                <div class="product-data-inputs">
+                <!-- <div class="product-data-inputs">
                     <div class="single-input-wrap">
                         <label class="input-label" for="name">Name</label>
                         <input type="text" id="name" v-model="formData.name.value" @input="checkIfChanged('name')" />
@@ -56,73 +56,25 @@
                             v-model="formData.description.value"
                         />
                     </div>
+                </div> -->
+
+                <div class="product-data-wrap">
+                    <EditDataInputs
+                        :productData="{
+                            name: formData.name,
+                            price: formData.price,
+                            discount_price: formData.discount_price,
+                            SKU: formData.SKU,
+                            description: formData.description,
+                        }"
+                        :product="product"
+                        @data-change="console.log($event)"
+                    />
                 </div>
 
-                <div class="single-input-wrap">
-                    <h4>Product Meta</h4>
-                    <div class="product-meta-data" v-if="formData.meta_data.value">
-                        <div class="add-new-meta-wrap" @click.prevent="addNewMetaBlock">
-                            <i class="fa-solid fa-square-plus"></i>
-                            <span>Add New</span>
-                        </div>
-                        <div class="single-input-wrap" v-for="(value, dataIndex) of formData.meta_data.value" :key="value.name + '-' + dataIndex">
-                            <i class="fa-solid fa-xmark remove-meta-block-icon" @click.prevent="formData.meta_data.value.splice(dataIndex, 1)"></i>
-                            <div class="meta-heading-wrap">
-                                <input
-                                    type="text"
-                                    :value="formData.meta_data.value[dataIndex].name"
-                                    @change="(e) => (formData.meta_data.value[dataIndex].name = e.target.value)"
-                                    class="meta-name-input"
-                                />
-                                <div class="checkbox-wrap">
-                                    <input
-                                        type="checkbox"
-                                        :id="'color-checkbox-' + dataIndex"
-                                        :checked="formData.meta_data.value[dataIndex].useColors"
-                                        @change="(e) => (formData.meta_data.value[dataIndex].useColors = e.target.checked)"
-                                    />
-                                    <label :for="'color-checkbox-' + dataIndex">Use colors?</label>
-                                </div>
-                            </div>
-
-                            <div class="meta-wrap-container">
-                                <div class="single-meta-wrap" v-for="(metaItem, index) of value.data" :key="metaItem.name + '-' + metaItem.value">
-                                    <div class="color-select-input-wrap">
-                                        <i
-                                            class="fa-solid fa-xmark remove-meta-key-icon"
-                                            @click.prevent="formData.meta_data.value[dataIndex].data.splice(index, 1)"
-                                        ></i>
-                                        <label v-if="value.useColors" :for="'color-select-' + metaItem.name + '-' + metaItem.value + '-' + index">
-                                            <div
-                                                class="color-block"
-                                                :style="{ backgroundColor: formData.meta_data.value[dataIndex].data[index].value }"
-                                            ></div>
-                                        </label>
-                                        <input
-                                            class="color-input"
-                                            type="color"
-                                            name="color-select"
-                                            :id="'color-select-' + metaItem.name + '-' + metaItem.value + '-' + index"
-                                            :value="formData.meta_data.value[dataIndex].data[index].value"
-                                            @change="handleColorChange($event, dataIndex, index)"
-                                        />
-                                        <input
-                                            type="text"
-                                            :value="formData.meta_data.value[dataIndex].data[index].name"
-                                            @change="handleMetaNameChange($event, dataIndex, index)"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div
-                                    class="add-new-meta-wrap"
-                                    @click.prevent="() => formData.meta_data.value[dataIndex].data.push({ name: '', value: '' })"
-                                >
-                                    <i class="fa-solid fa-square-plus"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="product-meta-wrap">
+                    <h4 class="section-heading">Product Meta</h4>
+                    <EditMeta :meta_data="formData.meta_data" :product="product" @meta-change="formData.meta_data['value'] = $event" />
                 </div>
 
                 <!-- Product reviews -->
@@ -237,11 +189,13 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
-import Editor from '@tinymce/tinymce-vue';
-import useProductImage from '../../hooks/useProductImage';
-import ProductRatingForm from '../Forms/ProductRatingForm.vue';
-import LoadingOverlay from '../LoadingOverlay.vue';
-import Pagination from '../Pagination.vue';
+
+import useProductImage from '../../../hooks/useProductImage';
+import ProductRatingForm from '../../Forms/ProductRatingForm.vue';
+import LoadingOverlay from '../../LoadingOverlay.vue';
+import Pagination from '../../Pagination.vue';
+import EditMeta from './EditMeta.vue';
+import EditDataInputs from './EditDataInputs.vue';
 
 const store = useStore();
 const route = useRoute();
@@ -283,44 +237,44 @@ const handleChangeRatingsPage = (val) => {
     currentRatingsSlide.value = val - 1;
 };
 
-const handleColorChange = (e, key, index) => {
-    formData.meta_data.value[key].data[index].value = e.target.value;
+// const handleColorChange = (e, key, index) => {
+//     formData.meta_data.value[key].data[index].value = e.target.value;
 
-    if (!product.value.meta_data[key] || !product.value.meta_data[key].data[index]) {
-        formData.meta_data.changed = true;
-    } else {
-        formData.meta_data.changed = e.target.value !== product.value.meta_data[key].data[index].value;
-    }
-};
-const handleMetaNameChange = (e, key, index) => {
-    formData.meta_data.value[key].data[index].name = e.target.value;
+//     if (!product.value.meta_data[key] || !product.value.meta_data[key].data[index]) {
+//         formData.meta_data.changed = true;
+//     } else {
+//         formData.meta_data.changed = e.target.value !== product.value.meta_data[key].data[index].value;
+//     }
+// };
+// const handleMetaNameChange = (e, key, index) => {
+//     formData.meta_data.value[key].data[index].name = e.target.value;
 
-    if (!formData.meta_data.value[key].useColors) formData.meta_data.value[key].data[index].value = e.target.value;
+//     if (!formData.meta_data.value[key].useColors) formData.meta_data.value[key].data[index].value = e.target.value;
 
-    if (!product.value.meta_data[key] || !product.value.meta_data[key].data[index]) {
-        formData.meta_data.changed = true;
-    } else {
-        formData.meta_data.changed = e.target.value !== product.value.meta_data[key].data[index].name;
-    }
-};
-const addNewMetaBlock = () => {
-    const isDuplicateKey = (keyName, count = 1) => {
-        const name = keyName + '-' + count;
+//     if (!product.value.meta_data[key] || !product.value.meta_data[key].data[index]) {
+//         formData.meta_data.changed = true;
+//     } else {
+//         formData.meta_data.changed = e.target.value !== product.value.meta_data[key].data[index].name;
+//     }
+// };
+// const addNewMetaBlock = () => {
+//     const isDuplicateKey = (keyName, count = 1) => {
+//         const name = keyName + '-' + count;
 
-        const exists = formData.meta_data.value.some((item) => item.name === keyName + '-' + count);
+//         const exists = formData.meta_data.value.some((item) => item.name === keyName + '-' + count);
 
-        if (exists) {
-            count++;
-            return isDuplicateKey(keyName, count);
-        }
+//         if (exists) {
+//             count++;
+//             return isDuplicateKey(keyName, count);
+//         }
 
-        return name;
-    };
+//         return name;
+//     };
 
-    const newKeyName = isDuplicateKey('new-meta');
-    // const valueKey = Object.keys(formData.meta_data.value).some((item) => item === 'new-value');
-    formData.meta_data.value.push({ name: newKeyName, data: [], useColors: false });
-};
+//     const newKeyName = isDuplicateKey('new-meta');
+//     // const valueKey = Object.keys(formData.meta_data.value).some((item) => item === 'new-value');
+//     formData.meta_data.value.push({ name: newKeyName, data: [], useColors: false });
+// };
 
 const checkIfChanged = (key) => {
     if (key === 'price' || key === 'discount_price') formData[key].value = formData[key].value.replace(/[^0-9.]/g, '');
@@ -759,7 +713,8 @@ onMounted(async () => {
     gap: 20px;
 }
 
-h4 {
+h4,
+.section-heading {
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -794,156 +749,4 @@ h4 {
 }
 
 /* Meta */
-.product-meta-data {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-.meta-name {
-    font-weight: 600;
-}
-
-.meta-wrap-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.color-select-input-wrap {
-    display: flex;
-    align-items: center;
-    background-color: white;
-    max-width: 200px;
-    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.068);
-    border-radius: 3px;
-    position: relative;
-    height: 36px;
-}
-
-.color-select-input-wrap label {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    background-color: rgba(0, 140, 255, 0.11);
-    border-radius: 3px 0 0 3px;
-    cursor: pointer;
-}
-
-.color-select-input-wrap input {
-    padding: 0;
-    background-color: transparent;
-    border: none;
-    border-radius: 0;
-    outline: none;
-    padding: 5px 10px;
-    font-size: 14px;
-    padding-right: 24px;
-    height: 100%;
-}
-/* .color-select-input-wrap input:not(.color-input) {
-} */
-.color-select-input-wrap input:focus-visible {
-    border: none;
-    outline: none;
-}
-
-.color-block {
-    width: 18px;
-    height: 18px;
-    margin: 5px 10px;
-    border-radius: 100%;
-}
-
-.color-select-input-wrap .color-input {
-    opacity: 0;
-    visibility: hidden;
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-.meta-heading-wrap {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-direction: column;
-}
-
-.meta-heading-wrap input {
-    width: unset;
-}
-
-.meta-heading-wrap .checkbox-wrap {
-    display: flex;
-    gap: 5px;
-}
-
-.product-meta-data .single-input-wrap {
-    background-color: #005bff1c;
-    padding: 20px;
-    border-radius: 5px;
-    position: relative;
-}
-
-.remove-meta-block-icon {
-    color: rgba(0, 0, 0, 0.493);
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.remove-meta-block-icon:hover {
-    color: rgb(216, 0, 0);
-}
-
-.remove-meta-key-icon {
-    color: rgba(0, 0, 0, 0.493);
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    cursor: pointer;
-    transform: translateY(-50%);
-    transition: 0.2s;
-    font-size: 14px;
-}
-
-.remove-meta-key-icon:hover {
-    color: rgb(216, 0, 0);
-}
-
-.add-new-meta-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: fit-content;
-    cursor: pointer;
-}
-.add-new-meta-wrap:hover i {
-    color: #0059ff;
-}
-
-.add-new-meta-wrap i {
-    font-size: 24px;
-    color: #0050e6;
-    transition: 0.2s;
-}
-
-.left-side .meta-heading-wrap .meta-name-input {
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px solid transparent;
-    outline: none;
-    padding: 0;
-    border-radius: 0;
-    transition: 0.2s;
-    font-weight: 600;
-    font-size: 18px;
-    /* max-width: 100px; */
-}
-
-.left-side .meta-heading-wrap .meta-name-input:focus-visible {
-    border-color: black;
-}
 </style>
