@@ -46,7 +46,6 @@
                         'mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents  powerpaste a11ychecker typography inlinecss',
                     toolbar:
                         'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-                    // onchange_callback: checkIfChanged,
                     setup(editor) {
                         editor.on('change', () => checkIfChanged('description'));
                     },
@@ -80,4 +79,35 @@ const checkIfChanged = (key) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+input {
+    padding: 10px;
+    outline: none;
+    border: none;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    font-weight: 400;
+    width: 100%;
+    transition: 0.2s;
+}
+
+input:focus-visible {
+    border: 1px solid black;
+}
+
+.product-data-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.flex-row {
+    display: flex;
+    gap: 20px;
+}
+
+.input-label {
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+</style>

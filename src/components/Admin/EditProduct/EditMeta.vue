@@ -59,13 +59,13 @@
 import { ref } from 'vue';
 
 const props = defineProps({
-    meta_data: { default: null },
+    meta: { default: null },
     product: { default: null },
 });
 
 const emit = defineEmits(['meta-change']);
 
-const newMetaData = ref(JSON.parse(JSON.stringify(props.meta_data)));
+const newMetaData = ref(JSON.parse(JSON.stringify(props.meta)));
 
 const addMetaBlock = () => {
     const isDuplicateKey = (keyName, count = 1) => {

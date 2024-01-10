@@ -30,11 +30,9 @@
 
         <button type="submit" class="button-main submit-button">
             <LoadingOverlay background="transparent" v-if="loading" size="20px" />
-
-            <span>{{ loading ? 'Please wait..' : buttonText }}</span>
+            <span v-if="ratingUpdatedMessage">{{ ratingUpdatedMessage }}</span>
+            <span v-else>{{ loading ? 'Please wait..' : buttonText }}</span>
         </button>
-
-        <span v-if="ratingUpdatedMessage">{{ ratingUpdatedMessage }}</span>
 
         <button v-if="data" class="delete-rating-button button-main" @click.prevent="emit('delete-review')">
             <span>Delete Review</span>
