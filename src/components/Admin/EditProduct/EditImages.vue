@@ -4,7 +4,7 @@
             <span class="input-label">Product Image</span>
             <label for="product-image" class="product-image-label">
                 <div class="product-image centered-background" :style="productMainImage">
-                    <div class="product-image-overlay">
+                    <div class="product-image-overlay" :class="{ 'no-image': !newImage.value }">
                         <i class="fa-solid fa-folder-plus product-image-icon"></i>
                     </div>
                 </div>
@@ -70,10 +70,12 @@ const fileInput = ref(null);
 const galleryFileInput = ref(null);
 
 const newImage = ref(JSON.parse(JSON.stringify(props.image)));
+
 const newGallery = ref(JSON.parse(JSON.stringify(props.gallery)));
 
 const productMainImage = computed(() => {
-    if (newImage.value.value === props.product.image) return useProductImage(props.product.id, props.product.image);
+    if (!newImage.value.value) return;
+    if (newImage.value.value === props?.product?.image) return useProductImage(props.product.id, props.product.image);
     if (newImage.value.value) {
         if (typeof newImage.value.value === 'object') {
             return { backgroundImage: `url('${URL.createObjectURL(newImage.value.value)}')` };
@@ -127,7 +129,8 @@ const handleImageChange = (e, type) => {
 const resetImage = (type) => {
     if (type === 'main') {
         fileInput.value.value = '';
-        newImage.value.value = props.product.image ? props.product.image : '';
+
+        newImage.value.value = props?.product?.image ? props.product.image : '';
         emit('image-change', newImage.value.value);
     } else {
         galleryFileInput.value.value = '';
@@ -186,6 +189,10 @@ const handleRemoveGalleryImage = (image) => {
     justify-content: center;
     align-items: center;
     border-radius: 5px;
+}
+
+.product-image-overlay.no-image {
+    opacity: 0.7;
 }
 
 .reset-image-button {

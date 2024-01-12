@@ -10,7 +10,10 @@
 
             <div class="product-content">
                 <div v-if="showCategories" class="product-categories">
-                    <div class="single-category" v-for="(category, index) of productKey(product).expand.categories" :key="category.id">
+                    <div v-if="!productKey(product).expand?.categories" class="single-category" :style="{ visibility: 'hidden', opacity: 0 }">
+                        <span>-</span>
+                    </div>
+                    <div v-else class="single-category" v-for="(category, index) of productKey(product).expand.categories" :key="category.id">
                         <router-link :to="`/shop/categories/${category.link}`">
                             <span>{{ category.name }}</span></router-link
                         >

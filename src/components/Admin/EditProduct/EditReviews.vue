@@ -1,5 +1,5 @@
 <template>
-    <div class="product-ratings-slider" v-if="reviews.value">
+    <div class="product-ratings-slider" v-if="reviews.value?.length">
         <div class="product-ratings-wrap" :style="{ transform: `translateX(${currentRatingsSlide * -100}%)` }">
             <div
                 class="single-rating"
@@ -160,6 +160,11 @@ const handleRatingUpdate = async (ratingId, data) => {
 </script>
 
 <style scoped>
+.pagination {
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
 .product-ratings-slider {
     overflow: hidden;
 }

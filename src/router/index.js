@@ -18,13 +18,14 @@ import EditProduct from '../components/Admin/EditProduct/EditProduct.vue';
 
 const routes = [
     {
-        path: '/admin-dashboard',
-        name: 'Admin Dashboard',
+        path: '/dashboard',
+        name: 'Dashboard',
         component: AdminDashboard,
         children: [
             { name: 'Dashboard', path: '', component: Dashboard },
             { name: 'Manage Products', path: 'manage-products', component: ManageProducts },
             { name: 'Edit Product', path: 'manage-products/:id', component: EditProduct },
+            { name: 'Add Product', path: 'manage-products/add-new', component: EditProduct, props: { addNew: true } },
             { name: 'Manage Categories', path: 'manage-categories', component: ManageCategories },
             { name: 'Manage Users', path: 'manage-users', component: ManageUsers },
         ],

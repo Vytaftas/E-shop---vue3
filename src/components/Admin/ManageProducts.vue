@@ -3,59 +3,77 @@
         <LoadingOverlay v-if="productsLoading" background="transparent" color="black" />
         <div class="manage-products">
             <h3 class="heading">Manage Products</h3>
+            <router-link to="/dashboard/manage-products/add-new" class="add-new-wrap">
+                <i class="fa-solid fa-square-plus"></i>
+                <span>Add New</span>
+            </router-link>
 
-            <div class="single-product product-headings">
-                <div class="product-image">Image</div>
-                <div>Product Name</div>
-                <div>SKU</div>
-                <div>Price</div>
-                <div>Categories</div>
-                <div>Created</div>
-                <div class="product-delete-heading">Actions</div>
-            </div>
+            <div class="products-data">
+                <div class="single-product product-headings">
+                    <div class="product-image">Image</div>
+                    <div>Product Name</div>
+                    <div>SKU</div>
+                    <div>Price</div>
+                    <div>Categories</div>
+                    <div>Created</div>
+                    <div class="product-delete-heading">Actions</div>
+                </div>
 
-            <div class="divider"></div>
+                <div class="divider"></div>
 
-            <div class="products-wrap">
-                <div class="single-product" v-for="product of products" :key="product.id">
-                    <div class="product-image centered-background" :style="useProductImage(product.id, product.image)"></div>
-                    <div class="product-name-wrap">
-                        <p class="product-name">{{ product.name }}</p>
-                        <div class="product-options">
-                            <router-link :to="`/shop/product/${product.id}`" target="_blank" class="product-option-button link-underline product-view"
-                                >View</router-link
-                            >
-                            <router-link :to="`manage-products/${product.id}`" class="product-option-button link-underline product-edit"
-                                >Edit</router-link
-                            >
-                            <span class="product-option-button link-underline product-copy" @click="handleDuplicateProduct(product)">Duplicate</span>
+                <div class="products-wrap">
+                    <div class="single-product" v-for="product of products" :key="product.id">
+                        <div class="product-image centered-background" :style="useProductImage(product.id, product.image)"></div>
+                        <div class="product-name-wrap">
+                            <p class="product-name">{{ product.name }}</p>
+                            <div class="product-options">
+                                <router-link
+                                    :to="`/shop/product/${product.id}`"
+                                    target="_blank"
+                                    class="product-option-button link-underline product-view"
+                                    >View</router-link
+                                >
+                                <router-link :to="`manage-products/${product.id}`" class="product-option-button link-underline product-edit"
+                                    >Edit</router-link
+                                >
+                                <span class="product-option-button link-underline product-copy" @click="handleDuplicateProduct(product)"
+                                    >Duplicate</span
+                                >
+                            </div>
                         </div>
-                    </div>
-                    <div class="product-sku">
-                        <span>{{ product.SKU ? product.SKU : '-' }}</span>
-                    </div>
-                    <div class="product-price-wrap">
-                        <span v-if="product.discount_price" class="product-discount-price">{{ product.discount_price }}</span>
-                        <span class="product-price">{{ product.price }}</span>
-                    </div>
-                    <div v-if="product.expand.categories" class="product-categories-wrap">
-                        <div class="single-category-wrap" v-for="(category, index) of product.expand.categories" :key="category.id">
-                            <router-link :to="`/shop/categories/${category.link}`" target="_blank" class="single-category link-underline">{{
-                                category.name
-                            }}</router-link>
-                            <span v-if="index !== product.expand.categories.length - 1">, </span>
+                        <div class="product-sku">
+                            <span>{{ product.SKU ? product.SKU : '-' }}</span>
                         </div>
-                    </div>
-                    <div class="product-created-wrap">
-                        <p>{{ productCreatedTime(product.created) }}</p>
-                    </div>
-                    <div class="product-delete-wrap">
-                        <i @click="handleProductDelete(product.id)" class="fa-solid fa-trash product-delete"></i>
+                        <div class="product-price-wrap">
+                            <span v-if="product.discount_price" class="product-discount-price">{{ product.discount_price }}</span>
+                            <span class="product-price">{{ product.price }}</span>
+                        </div>
+                        <div class="product-categories-wrap">
+                            <p v-if="!product.expand?.categories">-</p>
+                            <div v-else class="single-category-wrap" v-for="(category, index) of product.expand.categories" :key="category.id">
+                                <router-link :to="`/shop/categories/${category.link}`" target="_blank" class="single-category link-underline">{{
+                                    category.name
+                                }}</router-link>
+                                <span v-if="index !== product.expand.categories.length - 1">, </span>
+                            </div>
+                        </div>
+                        <div class="product-created-wrap">
+                            <p>{{ productCreatedTime(product.created) }}</p>
+                        </div>
+                        <div class="product-delete-wrap">
+                            <i @click="handleProductDelete(product.id)" class="fa-solid fa-trash product-delete"></i>
+                        </div>
                     </div>
                 </div>
+                <Pagination
+                    class="pag"
+                    v-if="paginationData"
+                    :paginationData="paginationData"
+                    color="rgb(22, 88, 212)"
+                    @page-change="handlePageChange"
+                />
+                <p v-if="!products.length && !productsLoading" :style="{ margin: 'auto', marginTop: '10px' }">No products found.</p>
             </div>
-            <Pagination v-if="paginationData" :paginationData="paginationData" color="rgb(22, 88, 212)" @page-change="handlePageChange" />
-            <p v-if="!products.length && !productsLoading" :style="{ margin: 'auto' }">No products found.</p>
         </div>
     </div>
 </template>
@@ -116,8 +134,6 @@ const handleProductDelete = async (id) => {
 
 const handleDuplicateProduct = async (product) => {
     const { categories, description, discount_price, meta_data, name, price, gallery_images, image } = product;
-
-    console.log(categories);
 
     const productData = {
         categories,
@@ -181,7 +197,7 @@ const handleDuplicateProduct = async (product) => {
 
     try {
         productsLoading.value = true;
-        await store.dispatch('addProduct', data);
+        await store.dispatch('addProduct', { fafa: 's' });
         getProducts({ page: paginationData.value.page });
     } catch (error) {
         console.log(error);
@@ -200,9 +216,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.pag {
+    margin-top: 25px;
+}
+
 .manage-products-wrapper {
     position: relative;
     height: 100%;
+    background-color: #f6faff;
 }
 .manage-products {
     padding: 25px;
@@ -212,17 +233,23 @@ onMounted(async () => {
     overflow: hidden;
 }
 
+.products-data {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 3px 5px #0000000f;
+    padding: 25px;
+    overflow: auto;
+}
+
 .heading {
     font-size: 30px;
     font-weight: 600;
-    margin-bottom: 25px;
 }
 
 .products-wrap {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    overflow: auto;
 }
 
 .single-product {
@@ -322,5 +349,24 @@ onMounted(async () => {
     background-color: rgba(0, 0, 0, 0.082);
     height: 1px;
     margin: 10px 0;
+}
+
+.add-new-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    cursor: pointer;
+    margin: 15px 0 25px 0;
+}
+
+.add-new-wrap:hover i {
+    color: #0059ff;
+}
+
+.add-new-wrap i {
+    font-size: 30px;
+    color: #0050e6;
+    transition: 0.2s;
 }
 </style>

@@ -44,6 +44,7 @@ onMounted(async () => {
 .message {
     text-align: center;
     font-size: 18px;
+    text-align: center;
     margin: auto;
 }
 </style>

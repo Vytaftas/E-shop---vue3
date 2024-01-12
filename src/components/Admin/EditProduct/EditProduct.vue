@@ -1,8 +1,8 @@
 <template>
-    <div v-if="product" class="product-wrap">
+    <div v-if="product || addNew" class="product-wrap">
         <div class="heading-wrap">
             <h3 class="heading">
-                Manage Product <span class="product-id">(ID: {{ product.id }})</span>
+                Manage Product <span v-if="!addNew" class="product-id">(ID: {{ product.id }})</span>
             </h3>
             <button class="product-update-button button-main" @click="handleProductUpdate">Update</button>
         </div>
@@ -70,7 +70,7 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
 import EditMeta from './EditMeta.vue';
@@ -80,8 +80,13 @@ import EditImages from './EditImages.vue';
 import ChipMultiSelect from '../../Misc/ChipMultiSelect.vue';
 import LoadingOverlay from '../../LoadingOverlay.vue';
 
+const props = defineProps({
+    addNew: { default: false },
+});
+
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 
 const productId = computed(() => route.params.id);
 const product = ref(null);
@@ -107,8 +112,6 @@ const productData = reactive({
 /// FIX META
 
 const handleProductUpdate = async () => {
-    const dataToUpdate = {};
-
     const data = new FormData();
 
     for (const key of Object.keys(productData)) {
@@ -138,8 +141,13 @@ const handleProductUpdate = async () => {
     }
 
     try {
-        await store.dispatch('updateProduct', { productId: product.value.id, formData: data });
-        await getProduct();
+        if (props.addNew) {
+            await store.dispatch('addProduct', data);
+            router.push('/dashboard/manage-products');
+        } else {
+            await store.dispatch('updateProduct', { productId: product.value.id, formData: data });
+            await getProduct();
+        }
     } catch (error) {
         console.log(error);
     }
@@ -182,7 +190,7 @@ const getProduct = async () => {
 };
 
 onMounted(async () => {
-    await getProduct();
+    if (!props.addNew) await getProduct();
     try {
         const response = await store.dispatch('getAvailableCategories');
         availableCategories.value = response;

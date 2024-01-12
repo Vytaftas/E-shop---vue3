@@ -67,15 +67,14 @@ const props = defineProps({
 
 const emit = defineEmits(['data-change']);
 
-const newProductData = ref(JSON.parse(JSON.stringify(props.productData)));
+const newProductData = ref(props.productData ? JSON.parse(JSON.stringify(props.productData)) : {});
 
 const checkOnlyNumbers = (key) => (newProductData.value[key].value = newProductData.value[key].value.replace(/[^0-9.]/g, ''));
 
 const checkIfChanged = (key) => {
-    newProductData.value[key].changed = newProductData.value[key].value != props.product[key];
+    if (newProductData.value[key]?.changed) newProductData.value[key].changed = newProductData.value[key].value != props.product[key];
 
     emit('data-change', newProductData.value);
-    // Finished with this?
 };
 </script>
 
