@@ -82,6 +82,7 @@ const checkIfChanged = (key) => {
 <style scoped>
 input {
     padding: 10px;
+    font-size: 14px;
     outline: none;
     border: none;
     border: 1px solid rgba(0, 0, 0, 0.3);
@@ -89,6 +90,7 @@ input {
     font-weight: 400;
     width: 100%;
     transition: 0.2s;
+    background-color: #f6faff;
 }
 
 input:focus-visible {

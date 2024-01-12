@@ -103,6 +103,23 @@ const actions = {
         }
     },
 
+    async updateProduct({ commit, dispatch }, data) {
+        try {
+            await this.$db_api.updateProduct(data);
+
+            dispatch('addNotification', {
+                message: 'Product successfully updated',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error.response);
+            dispatch('addNotification', {
+                message: 'Error while trying to update product',
+                type: 'error',
+            });
+        }
+    },
+
     async getProductRatings({ commit, dispatch }, data) {
         try {
             const ratings = await this.$db_api.getProductRatings(data);

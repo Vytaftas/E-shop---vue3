@@ -89,37 +89,38 @@ const addMetaBlock = () => {
 
 const removeMetaBlock = (index) => {
     newMetaData.value.value.splice(index, 1);
-    emit('meta-change', newMetaData.value);
+    emit('meta-change', newMetaData.value.value);
 };
 
 const handleMetaBlockNameChange = (e, index) => {
     newMetaData.value.value[index].name = e.target.value;
-    emit('meta-change', newMetaData.value);
+    emit('meta-change', newMetaData.value.value);
 };
 
 const addMetaItem = (index) => {
-    newMetaData.value.value[index].data.push({ name: '', value: '' });
-    emit('meta-change', newMetaData.value);
+    const itemValue = newMetaData.value.value[index].useColors ? '#FFFFFF' : '';
+    newMetaData.value.value[index].data.push({ name: '', value: itemValue });
+    emit('meta-change', newMetaData.value.value);
 };
 const removeMetaItem = (dataIndex, index) => {
     newMetaData.value.value[dataIndex].data.splice(index, 1);
-    emit('meta-change', newMetaData.value);
+    emit('meta-change', newMetaData.value.value);
 };
 
 const handleColorCheckboxChange = (e, index) => {
     newMetaData.value.value[index].useColors = e.target.checked;
-    emit('meta-change', newMetaData.value);
+    emit('meta-change', newMetaData.value.value);
 };
 
 const handleMetaColorChange = (e, key, index) => {
     newMetaData.value.value[key].data[index].value = e.target.value;
-    emit('meta-change', newMetaData.value);
+    emit('meta-change', newMetaData.value.value);
 };
 
 const handleMetaNameChange = (e, key, index) => {
     newMetaData.value.value[key].data[index].name = e.target.value;
     if (!newMetaData.value.value[key].useColors) newMetaData.value.value[key].data[index].value = e.target.value;
-    emit('meta-change', newMetaData.value);
+    emit('meta-change', newMetaData.value.value);
 };
 </script>
 

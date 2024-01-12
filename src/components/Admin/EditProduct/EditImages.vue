@@ -1,52 +1,64 @@
 <template>
-    <div class="main-image-block">
-        <span class="input-label">Product Image</span>
-        <label for="product-image" class="product-image-label">
-            <div class="product-image centered-background" :style="productMainImage">
-                <div class="product-image-overlay">
-                    <i class="fa-solid fa-folder-plus product-image-icon"></i>
-                </div>
-            </div>
-        </label>
-        <input ref="fileInput" type="file" name="product-image" id="product-image" class="hidden" @change="(e) => handleImageChange(e, 'main')" />
-        <button class="reset-image-button" @click.prevent="resetImage('main')">Reset Image</button>
-    </div>
-
-    <div class="gallery-block">
-        <span class="input-label">Gallery Images</span>
-        <div class="gallery-images-wrap" v-if="newGallery.value">
-            <div
-                class="single-gallery-image centered-background"
-                @click.prevent="handleRemoveGalleryImage(image)"
-                v-for="image of newGallery.value"
-                :key="image"
-                :style="singleGalleryImage(image)"
-            >
-                <div class="single-gallery-image-overlay">
-                    <i class="fa-solid fa-circle-xmark single-gallery-image-icon"></i>
-                </div>
-            </div>
-            <label for="additional-gallery-image" class="product-image-label">
-                <div class="additional-gallery-image">
-                    <i class="fa-solid fa-folder-plus additional-gallery-image-icon"></i>
+    <div class="images-wrap">
+        <div class="main-image-block">
+            <span class="input-label">Product Image</span>
+            <label for="product-image" class="product-image-label">
+                <div class="product-image centered-background" :style="productMainImage">
+                    <div class="product-image-overlay">
+                        <i class="fa-solid fa-folder-plus product-image-icon"></i>
+                    </div>
                 </div>
             </label>
             <input
-                ref="galleryFileInput"
+                ref="fileInput"
                 type="file"
-                name="additional-gallery-image"
-                id="additional-gallery-image"
+                name="product-image"
+                accept="image/gif, image/jpeg, image/png, image/webp"
+                id="product-image"
                 class="hidden"
-                @change="(e) => handleImageChange(e, 'notmain')"
+                @change="(e) => handleImageChange(e, 'main')"
             />
+            <button class="reset-image-button" @click.prevent="resetImage('main')">Reset Image</button>
+        </div>
+
+        <div class="gallery-block">
+            <span class="input-label">Gallery Images</span>
+            <div class="gallery-images-wrap" v-if="newGallery.value">
+                <div
+                    class="single-gallery-image centered-background"
+                    @click.prevent="handleRemoveGalleryImage(image)"
+                    v-for="image of newGallery.value"
+                    :key="image"
+                    :style="singleGalleryImage(image)"
+                >
+                    <div class="single-gallery-image-overlay">
+                        <i class="fa-solid fa-circle-xmark single-gallery-image-icon"></i>
+                    </div>
+                </div>
+                <label for="additional-gallery-image" class="product-image-label">
+                    <div class="additional-gallery-image">
+                        <i class="fa-solid fa-folder-plus additional-gallery-image-icon"></i>
+                    </div>
+                </label>
+                <input
+                    ref="galleryFileInput"
+                    type="file"
+                    name="additional-gallery-image"
+                    accept="image/gif, image/jpeg, image/png, image/webp"
+                    id="additional-gallery-image"
+                    class="hidden"
+                    @change="(e) => handleImageChange(e, 'notmain')"
+                />
+            </div>
         </div>
     </div>
 </template>
 
-<!-- /// Check if everything is working when pocketbase is up again -->
-
 <script setup>
 import { computed, ref } from 'vue';
+import useProductImage from '../../../hooks/useProductImage';
+
+const emit = defineEmits(['image-change', 'gallery-change']);
 
 const props = defineProps({
     image: { default: '' },
@@ -63,20 +75,25 @@ const newGallery = ref(JSON.parse(JSON.stringify(props.gallery)));
 const productMainImage = computed(() => {
     if (newImage.value.value === props.product.image) return useProductImage(props.product.id, props.product.image);
     if (newImage.value.value) {
-        return newImage.value.value.indexOf('http')
-            ? { backgroundImage: `url('${newImage.value.value}')` }
-            : useProductImage(props.product.id, props.product.image);
+        if (typeof newImage.value.value === 'object') {
+            return { backgroundImage: `url('${URL.createObjectURL(newImage.value.value)}')` };
+        }
+        if (newImage.value.value.indexOf('http')) {
+            return { backgroundImage: `url('${newImage.value.value}')` };
+        }
+
+        return useProductImage(props.product.id, props.product.image);
     } else {
         return useProductImage(props.product.id, props.product.image);
     }
 });
 
-const checkIfChanged = (key) => {
-    if (key === 'image') newImage.value.changed = newImage.value.value !== props.product[key];
-    // return (formData[key].changed = formData[key].value !== props.product[key]);
-};
-
 const singleGalleryImage = (image) => {
+    if (typeof image === 'object') {
+        return { backgroundImage: `url('${URL.createObjectURL(image)}')` };
+    }
+
+    console.log(typeof image);
     const imageInDB = props.product.gallery_images.indexOf(image);
 
     if (imageInDB === -1) {
@@ -91,15 +108,17 @@ const handleImageChange = (e, type) => {
 
     if (!file) return resetImage(type);
 
+    console.log(file);
+
     const reader = new FileReader();
     reader.onload = (e) => {
         if (type === 'main') {
-            newImage.value.value = e.target.result;
-            checkIfChanged('image');
+            newImage.value.value = file;
+            emit('image-change', newImage.value.value);
         } else {
-            newGallery.value.value = [...newGallery.value.value, e.target.result];
+            newGallery.value.value = [...newGallery.value.value, file];
             resetImage(type);
-            newGallery.value.changed = !arraysAreEqual(props.product.gallery_images, newGallery.value.value);
+            emit('gallery-change', newGallery.value.value);
         }
     };
     reader.readAsDataURL(file);
@@ -109,10 +128,10 @@ const resetImage = (type) => {
     if (type === 'main') {
         fileInput.value.value = '';
         newImage.value.value = props.product.image ? props.product.image : '';
-        checkIfChanged('image');
+        emit('image-change', newImage.value.value);
     } else {
         galleryFileInput.value.value = '';
-        newGallery.value.changed = !arraysAreEqual(props.product.gallery_images, newGallery.value.value);
+        emit('gallery-change', newGallery.value.value);
     }
 };
 
@@ -121,19 +140,19 @@ const handleRemoveGalleryImage = (image) => {
 
     newGallery.value.value = newGallery.value.value.filter((item) => item !== image);
 
-    const newImages = newGallery.value.value.filter((item) => !props.product.gallery_images.includes(item)); //images to add
-    const originalImages = newGallery.value.value.filter((item) => props.product.gallery_images.includes(item));
-
-    const isTheSame = arraysAreEqual(originalImages, props.product.gallery_images); // use to upload changed existing images
-
-    newGallery.value.changed = !arraysAreEqual(props.product.gallery_images, newGallery.value.value);
+    emit('gallery-change', newGallery.value.value);
 };
 </script>
 
 <style scoped>
+.images-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
 .product-image {
-    height: 400px;
-    width: 400px;
+    height: calc(400px - 40px);
+    width: calc(400px - 40px);
     border-radius: 5px;
     position: relative;
 }
@@ -169,16 +188,36 @@ const handleRemoveGalleryImage = (image) => {
     border-radius: 5px;
 }
 
+.reset-image-button {
+    margin-top: 10px;
+    padding: 5px 20px;
+    background-color: #0071ff;
+    color: white;
+    transition: 0.2s;
+    border-radius: 3px;
+    width: 100%;
+}
+
+.reset-image-button:hover {
+    background-color: #0059ff;
+}
+
+.input-label {
+    font-weight: 500;
+    margin-bottom: 3px;
+    display: block;
+}
+
 /* Gallery */
 
 .gallery-images-wrap {
     display: grid;
-    grid-template-columns: repeat(3, calc(100px - 10px / 3));
+    grid-template-columns: repeat(4, calc(100px - 40px / 3));
     gap: 5px;
 }
 .single-gallery-image {
     position: relative;
-    height: 96.65px;
+    height: 86.66px;
     cursor: pointer;
     border-radius: 5px;
 }
@@ -215,7 +254,7 @@ const handleRemoveGalleryImage = (image) => {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 96.65px;
+    height: 86.66px;
     border-radius: 5px;
 }
 .additional-gallery-image:hover {

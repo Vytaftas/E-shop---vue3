@@ -76,10 +76,22 @@ export const DB_API = (store) =>
                 throw error;
             }
         },
+
         async addProduct(data) {
             console.log(data);
             try {
                 return await PocketBaseDB.collection('products').create(data);
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async updateProduct(data) {
+            const { productId, formData } = data;
+            console.log(productId);
+            console.log(formData);
+            try {
+                return await PocketBaseDB.collection('products').update(productId, formData);
             } catch (error) {
                 throw error;
             }

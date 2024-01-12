@@ -65,7 +65,7 @@ import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import useProductImage from '../../hooks/useProductImage';
 import LoadingOverlay from '../LoadingOverlay.vue';
-import Pagination from '../Pagination.vue';
+import Pagination from '../Misc/Pagination.vue';
 
 const store = useStore();
 

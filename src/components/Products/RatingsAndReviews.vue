@@ -27,7 +27,7 @@ import StarRating from './StarRating.vue';
 import ProductRatingForm from '../Forms/ProductRatingForm.vue';
 import { useStore } from 'vuex';
 import { computed, ref, watch } from 'vue';
-import Pagination from '../Pagination.vue';
+import Pagination from '../Misc/Pagination.vue';
 
 const store = useStore();
 

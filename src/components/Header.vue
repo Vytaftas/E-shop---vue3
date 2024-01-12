@@ -33,7 +33,7 @@
 <script setup>
 import MiniCart from './Cart/MiniCart.vue';
 import UserMenu from './UserMenu.vue';
-import SearchInput from './SearchInput.vue';
+import SearchInput from './Misc/SearchInput.vue';
 import logo from '../assets/logo.svg';
 import { useStore } from 'vuex';
 import { computed } from 'vue';

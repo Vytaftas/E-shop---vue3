@@ -37,7 +37,7 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import ProductRatingForm from '../../Forms/ProductRatingForm.vue';
-import Pagination from '../../Pagination.vue';
+import Pagination from '../../Misc/Pagination.vue';
 import LoadingOverlay from '../../LoadingOverlay.vue';
 
 const props = defineProps({
