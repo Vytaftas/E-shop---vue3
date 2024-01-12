@@ -52,14 +52,14 @@ const productsMetaData = computed(() => {
 
         keys.forEach((key) => {
             if (!data[key]) data[key] = [];
-            data[key].push(item.meta_data[key]);
+            data[key].push(item.meta_data[key].data);
         });
     });
 
     let result = {};
 
     Object.keys(data).forEach((key) => {
-        if (Array.isArray(data[key]) && data[key].every(Array.isArray)) {
+        if (Array.isArray(data[key])) {
             const flattened = data[key].flat();
 
             if (flattened.every((item) => typeof item === 'object' && item !== null)) {
@@ -68,6 +68,8 @@ const productsMetaData = computed(() => {
             }
         }
     });
+
+    console.log(result);
 
     return result;
 });

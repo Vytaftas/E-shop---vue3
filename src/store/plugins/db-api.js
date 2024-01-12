@@ -82,6 +82,7 @@ export const DB_API = (store) =>
             try {
                 return await PocketBaseDB.collection('products').create(data);
             } catch (error) {
+                console.log(error.response);
                 throw error;
             }
         },

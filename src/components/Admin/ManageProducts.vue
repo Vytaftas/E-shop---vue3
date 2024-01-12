@@ -115,7 +115,9 @@ const handleProductDelete = async (id) => {
 };
 
 const handleDuplicateProduct = async (product) => {
-    const { categories, description, discount_price, meta_data, name, price } = product;
+    const { categories, description, discount_price, meta_data, name, price, gallery_images, image } = product;
+
+    console.log(categories);
 
     const productData = {
         categories,
@@ -124,13 +126,67 @@ const handleDuplicateProduct = async (product) => {
         meta_data,
         name: `${name} - Copy`,
         price,
+        gallery_images,
+        image,
     };
 
+    const data = new FormData();
+
+    for (const key of Object.keys(productData)) {
+        if (key === 'categories') {
+            for (let cat of productData[key]) {
+                data.append(key, cat);
+            }
+            continue;
+        }
+
+        if (key === 'image') {
+            try {
+                productsLoading.value = true;
+                const response = await fetch(`https://my-shop-app.pockethost.io/api/files/products/${product.id}/${product.image}`);
+                const imgBlob = await response.blob();
+                data.append(key, imgBlob);
+            } catch (error) {
+                console.log(error);
+                productsLoading.value = false;
+                continue;
+            }
+
+            continue;
+        }
+        if (key === 'gallery_images') {
+            for (let img of productData[key]) {
+                try {
+                    productsLoading.value = true;
+                    const image = await fetch(`https://my-shop-app.pockethost.io/api/files/products/${product.id}/${img}`);
+                    const imgBlob = await image.blob();
+                    data.append(key, imgBlob);
+                } catch (error) {
+                    productsLoading.value = false;
+                    console.log(error);
+                    continue;
+                }
+            }
+            continue;
+        }
+
+        if (key === 'meta_data') {
+            const mData = JSON.stringify(productData[key]);
+            data.append(key, mData);
+            continue;
+        }
+
+        data.append(key, productData[key]);
+    }
+
     try {
-        await store.dispatch('addProduct', productData);
+        productsLoading.value = true;
+        await store.dispatch('addProduct', data);
         getProducts({ page: paginationData.value.page });
     } catch (error) {
         console.log(error);
+    } finally {
+        productsLoading.value = false;
     }
 };
 

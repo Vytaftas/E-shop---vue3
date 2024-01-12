@@ -1,7 +1,4 @@
 <template>
-    <pre>
-        {{ productData.meta_data.value }}
-    </pre>
     <div v-if="product" class="product-wrap">
         <div class="heading-wrap">
             <h3 class="heading">

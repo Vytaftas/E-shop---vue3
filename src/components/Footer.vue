@@ -49,6 +49,7 @@ footer {
     min-height: 100px;
     background-color: white;
     clip-path: polygon(0 100%, 100% 0, 0 0, 0% 100%);
+    margin-top: -0.2px;
 }
 
 .site-logo {
