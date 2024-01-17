@@ -41,6 +41,7 @@
             <i v-if="showRemoveButton" class="fa-solid fa-trash remove-item" @click="handleRemoveFromCart(product)"></i>
         </div>
     </div>
+    <p v-if="!products.length && !isCart" :style="{ textAlign: 'center' }">No products found.</p>
     <p v-if="!products.length && isCart">Cart is empty.</p>
 </template>
 

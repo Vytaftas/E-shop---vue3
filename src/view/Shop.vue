@@ -4,7 +4,9 @@
         :products="products"
         :columns="productColumns"
         :productsAmount="productsAmount"
+        :paginationData="paginationData"
         @filter-change="handleFilterChange"
+        @page-change="getProducts(currentFilters, $event)"
     />
 </template>
 
@@ -22,16 +24,23 @@ const productColumns = ref(3);
 const productsAmount = ref(9);
 
 const products = ref([]);
+const paginationData = ref(null);
 
-const getProducts = async (filterData) => {
+const currentFilters = ref('');
+const currentPage = ref(1);
+
+const getProducts = async (filterData, page = currentPage.value) => {
+    console.log(filterData);
     try {
         productsLoading.value = true;
         const response = await store.dispatch('getProducts', {
             amount: productsAmount.value,
             filterData,
+            page,
             returnData: true,
         });
         products.value = response.items;
+        paginationData.value = response.paginationData;
     } catch (error) {
         console.log(error);
     } finally {
@@ -39,7 +48,10 @@ const getProducts = async (filterData) => {
     }
 };
 
-const handleFilterChange = (filterData) => getProducts(filterData);
+const handleFilterChange = (filterData) => {
+    currentFilters.value = filterData;
+    getProducts(filterData, 1);
+};
 
 onMounted(async () => getProducts({}));
 </script>

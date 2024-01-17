@@ -40,7 +40,6 @@
                         />
                     </div>
 
-                    <!-- /// Ability to add new category from category list? -->
                     <div class="section-wrap product-categories-wrap">
                         <ChipMultiSelect
                             :availableItems="availableCategories"
@@ -64,8 +63,8 @@
                 </div>
             </div>
         </form>
-        <LoadingOverlay v-if="productLoading" />
     </div>
+    <LoadingOverlay v-if="productLoading" />
 </template>
 
 <script setup>
@@ -97,21 +96,39 @@ const ratingsPerPage = ref(3);
 const availableCategories = ref(null);
 
 const productData = reactive({
-    name: { value: '', changed: false },
+    name: { value: '', error: false },
     SKU: { value: '', changed: false },
     description: { value: '', changed: false },
-    price: { value: '', changed: false },
-    discount_price: { value: '', changed: false },
+    price: { value: '', error: false },
+    discount_price: { value: '', error: false },
     image: { value: '', changed: false },
     gallery_images: { value: [], changed: false },
     categories: { value: [], changed: false },
     product_ratings: { value: [], changed: false },
-    meta_data: { value: [], changed: false },
+    meta_data: { value: [], error: false },
 });
 
-/// FIX META
-
 const handleProductUpdate = async () => {
+    Object.keys(productData).forEach((key) => (productData[key].error = false));
+
+    if (!productData.name.value.trim()) productData.name.error = "Name can't be empty";
+
+    if (!productData.price.value || productData.price.value <= 0) productData.price.error = 'Enter product price';
+
+    if (parseFloat(productData.discount_price.value) > parseFloat(productData.price.value))
+        productData.discount_price.error = "Discount price can't be higher than regular price";
+
+    const isMetaError = Object.keys(productData.meta_data.value).some((key) => !productData.meta_data.value[key].name.trim());
+    const isMetaKeyError = Object.keys(productData.meta_data.value).some((key) =>
+        productData.meta_data.value[key].data.some((keyItem) => {
+            return !keyItem.name.trim();
+        })
+    );
+
+    const isError = Object.keys(productData).some((key) => productData[key].error);
+
+    if (isError || isMetaError || isMetaKeyError) return;
+
     const data = new FormData();
 
     for (const key of Object.keys(productData)) {
@@ -192,10 +209,13 @@ const getProduct = async () => {
 onMounted(async () => {
     if (!props.addNew) await getProduct();
     try {
+        // productLoading.value = true;
         const response = await store.dispatch('getAvailableCategories');
         availableCategories.value = response;
     } catch (error) {
         console.log(error);
+    } finally {
+        // productLoading.value = false;
     }
 });
 </script>

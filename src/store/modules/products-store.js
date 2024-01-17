@@ -225,6 +225,55 @@ const actions = {
             // });
         }
     },
+    async addCategory({ dispatch }, data) {
+        try {
+            await this.$db_api.addCategory(data);
+
+            dispatch('addNotification', {
+                message: 'Category successfully added',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            // console.log(error);
+            dispatch('addNotification', {
+                message: 'Failed to add category',
+                type: 'error',
+            });
+        }
+    },
+    async updateCategory({ dispatch }, data) {
+        try {
+            await this.$db_api.updateCategory(data);
+
+            dispatch('addNotification', {
+                message: 'Category successfully updated',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            // console.log(error);
+            dispatch('addNotification', {
+                message: 'Failed to update category',
+                type: 'error',
+            });
+        }
+    },
+    async deleteCategory({ dispatch }, id) {
+        try {
+            await this.$db_api.deleteCategory(id);
+
+            dispatch('addNotification', {
+                message: 'Category successfully deleted',
+                type: 'success',
+            });
+        } catch (error) {
+            dispatch('addNotification', {
+                message: 'Failed to delete category',
+                type: 'error',
+            });
+        }
+    },
 };
 
 const mutations = {

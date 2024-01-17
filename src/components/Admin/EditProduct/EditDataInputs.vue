@@ -3,6 +3,7 @@
         <div class="single-input-wrap">
             <label class="input-label" for="name">Name</label>
             <input type="text" id="name" v-model="newProductData.name.value" @change="checkIfChanged('name')" />
+            <span class="error-message" v-if="newProductData.name.error">{{ newProductData.name.error }}</span>
         </div>
 
         <div class="flex-row">
@@ -15,6 +16,8 @@
                     @input="checkOnlyNumbers('price')"
                     @change="checkIfChanged('price')"
                 />
+
+                <span class="error-message" v-if="newProductData.price.error">{{ newProductData.price.error }}</span>
             </div>
             <div class="single-input-wrap">
                 <label class="input-label" for="discount-price">Discount Price</label>
@@ -25,6 +28,7 @@
                     @input="checkOnlyNumbers('discount_price')"
                     @change="checkIfChanged('discount_price')"
                 />
+                <span class="error-message" v-if="newProductData.discount_price.error">{{ newProductData.discount_price.error }}</span>
             </div>
         </div>
         <div class="flex-row">
@@ -79,6 +83,10 @@ const checkIfChanged = (key) => {
 </script>
 
 <style scoped>
+.single-input-wrap {
+    position: relative;
+}
+
 input {
     padding: 10px;
     font-size: 14px;
@@ -99,7 +107,7 @@ input:focus-visible {
 .product-data-inputs {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
 }
 
 .flex-row {
@@ -110,5 +118,12 @@ input:focus-visible {
 .input-label {
     font-weight: 500;
     margin-bottom: 3px;
+}
+
+.error-message {
+    position: absolute;
+    left: 0px;
+    bottom: 0;
+    transform: translateY(calc(100% + 1px));
 }
 </style>

@@ -90,6 +90,11 @@ h6 {
     background-position: center;
 }
 
+.error-message {
+    color: #dd0000;
+    font-size: 12px;
+}
+
 .button-main {
     padding: 6px 12px;
     font-size: 14px;

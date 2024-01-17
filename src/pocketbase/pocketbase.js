@@ -2,6 +2,7 @@ import PocketBase from 'pocketbase';
 
 const url = DB_URL;
 export const PocketBaseDB = new PocketBase(url);
+PocketBaseDB.autoCancellation(false);
 
 (async () => {
     const vueStore = await import('../store');

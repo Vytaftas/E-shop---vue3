@@ -7,12 +7,15 @@
         <div class="flex-column" v-for="(value, dataIndex) of newMetaData.value" :key="value.name + '-' + dataIndex">
             <i class="fa-solid fa-xmark remove-meta-block-icon" @click.prevent="removeMetaBlock(dataIndex)"></i>
             <div class="meta-heading-wrap">
-                <input
-                    type="text"
-                    :value="newMetaData.value[dataIndex].name"
-                    @change="handleMetaBlockNameChange($event, dataIndex)"
-                    class="meta-name-input"
-                />
+                <div class="meta-name-input-wrap">
+                    <input
+                        type="text"
+                        :value="newMetaData.value[dataIndex].name"
+                        @change="handleMetaBlockNameChange($event, dataIndex)"
+                        class="meta-name-input"
+                    />
+                    <p class="error-message" v-if="!newMetaData.value[dataIndex].name.trim()">Meta name can't be empty.</p>
+                </div>
                 <div class="checkbox-wrap">
                     <input
                         type="checkbox"
@@ -44,6 +47,8 @@
                             :value="newMetaData.value[dataIndex].data[index].name"
                             @change="handleMetaNameChange($event, dataIndex, index)"
                         />
+
+                        <p class="error-message" v-if="!newMetaData.value[dataIndex].data[index].name.trim()">Name can't be empty.</p>
                     </div>
                 </div>
 
@@ -69,11 +74,16 @@ const newMetaData = ref(JSON.parse(JSON.stringify(props.meta)));
 
 const addMetaBlock = () => {
     const isDuplicateKey = (keyName, count = 1) => {
-        const name = keyName + '-' + count;
+        const name = keyName + '_' + count;
 
-        const exists = newMetaData.value.value.some((item) => item.name === keyName + '-' + count);
+        const exists = Object.keys(newMetaData.value.value).some((key) => {
+            console.log(newMetaData.value.value[key].name);
+            console.log(name);
+            return newMetaData.value.value[key].name === name;
+        });
 
         if (exists) {
+            console.log('in exists');
             count++;
             return isDuplicateKey(keyName, count);
         }
@@ -81,14 +91,15 @@ const addMetaBlock = () => {
         return name;
     };
 
-    const newKeyName = isDuplicateKey('new-meta');
-    newMetaData.value.value.push({ name: newKeyName, data: [], useColors: false });
+    const newKeyName = isDuplicateKey('new_meta');
+
+    newMetaData.value.value[newKeyName] = { name: newKeyName, data: [], useColors: false };
 
     emit('meta-change', newMetaData.value);
 };
 
-const removeMetaBlock = (index) => {
-    newMetaData.value.value.splice(index, 1);
+const removeMetaBlock = (key) => {
+    delete newMetaData.value.value[key];
     emit('meta-change', newMetaData.value.value);
 };
 
@@ -103,6 +114,7 @@ const addMetaItem = (index) => {
     emit('meta-change', newMetaData.value.value);
 };
 const removeMetaItem = (dataIndex, index) => {
+    console.log(newMetaData.value.value);
     newMetaData.value.value[dataIndex].data.splice(index, 1);
     emit('meta-change', newMetaData.value.value);
 };
@@ -201,6 +213,18 @@ const handleMetaNameChange = (e, key, index) => {
     gap: 10px;
     margin-bottom: 20px;
     flex-direction: column;
+}
+
+.meta-name-input-wrap {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    position: absolute;
+    left: 0px;
+    bottom: 0;
+    transform: translateY(calc(100% + 1px));
 }
 
 .meta-heading-wrap input {

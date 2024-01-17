@@ -69,6 +69,21 @@ export const DB_API = (store) =>
                 console.log(error);
             }
         },
+        async getAllUsers({ page = 1, amount = 12 }) {
+            try {
+                const productsData = await PocketBaseDB.collection('users').getList(page, amount, {
+                    // expand: 'product_ratings(product_id).user_id, categories, rating_id',
+                    sort: '-created',
+                    expand: 'permissions_id',
+                });
+
+                const { items, ...paginationData } = productsData;
+
+                return { items, paginationData };
+            } catch (error) {
+                console.log(error);
+            }
+        },
         async deleteProduct(id) {
             try {
                 return await PocketBaseDB.collection('products').delete(id);
@@ -102,6 +117,7 @@ export const DB_API = (store) =>
             try {
                 return await PocketBaseDB.collection('available_categories').getFullList({
                     ...filterData,
+                    sort: '-created',
                 });
             } catch (error) {
                 console.log(error);
@@ -194,6 +210,35 @@ export const DB_API = (store) =>
         async deleteReview(id) {
             try {
                 return await PocketBaseDB.collection('product_ratings').delete(id);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async addCategory(data) {
+            try {
+                return await PocketBaseDB.collection('available_categories').create(data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async updateCategory({ categoryId, data }) {
+            try {
+                return await PocketBaseDB.collection('available_categories').update(categoryId, data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async deleteCategory(id) {
+            try {
+                return await PocketBaseDB.collection('available_categories').delete(id);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        async updatePermissions({ permissionsId, data }) {
+            try {
+                return await PocketBaseDB.collection('permissions').update(permissionsId, data);
             } catch (error) {
                 console.log(error);
             }

@@ -196,11 +196,6 @@ h3 {
     text-decoration-color: inherit;
 }
 
-.error-message {
-    color: #dd0000;
-    font-size: 12px;
-}
-
 .single-input-wrapper input {
     padding: 10px 20px;
     outline: none;

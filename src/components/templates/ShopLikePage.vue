@@ -3,10 +3,11 @@
         <PathLinks class="path-links" />
         <div class="divider"></div>
         <div class="categories-wrap-content">
-            <Filter :products="products" @filter-change="(val) => emit('filter-change', val)" />
+            <Filter :products="products" @filter-change="emit('filter-change', $event)" />
             <div class="categories-content">
                 <ProductsList v-if="!loading" :products="products" :columns="columns" />
                 <ProductsListSkeleton v-else :skeletonAmount="productsAmount" :columns="columns" />
+                <Pagination :paginationData="paginationData" @page-change="emit('page-change', $event)" />
             </div>
         </div>
         <div v-if="!products.length && !loading" class="message container">
@@ -21,15 +22,17 @@ import ProductsList from '../Products/ProductsList.vue';
 import ProductsListSkeleton from '../Skeletons/ProductsListSkeleton.vue';
 import Filter from '../Filter.vue';
 import PathLinks from '../PathLinks.vue';
+import Pagination from '../Misc/Pagination.vue';
 
 const props = defineProps({
     products: { default: [] },
     columns: { default: 3 },
     productsAmount: { default: 9 },
     loading: { default: false },
+    paginationData: { default: null },
 });
 
-const emit = defineEmits(['filter-change']);
+const emit = defineEmits(['filter-change', 'page-change']);
 </script>
 
 <style scoped>

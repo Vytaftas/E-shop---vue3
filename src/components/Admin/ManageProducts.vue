@@ -3,10 +3,25 @@
         <LoadingOverlay v-if="productsLoading" background="transparent" color="black" />
         <div class="manage-products">
             <h3 class="heading">Manage Products</h3>
-            <router-link to="/dashboard/manage-products/add-new" class="add-new-wrap">
-                <i class="fa-solid fa-square-plus"></i>
-                <span>Add New</span>
-            </router-link>
+
+            <div class="options-wrap">
+                <router-link to="/dashboard/manage-products/add-new" class="add-new-wrap">
+                    <i class="fa-solid fa-square-plus"></i>
+                    <span>Add New</span>
+                </router-link>
+
+                <div class="products-per-page">
+                    <span class="products-per-page-text">Products per page: </span>
+
+                    <select name="products-select" id="products-select" @change="productsPerPage = $event.target.value">
+                        <option value="5">5</option>
+                        <option value="8" selected>8</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
 
             <div class="products-data">
                 <div class="single-product product-headings">
@@ -33,7 +48,9 @@
                                     class="product-option-button link-underline product-view"
                                     >View</router-link
                                 >
-                                <router-link :to="`manage-products/${product.id}`" class="product-option-button link-underline product-edit"
+                                <router-link
+                                    :to="`/dashboard/manage-products/${product.id}`"
+                                    class="product-option-button link-underline product-edit"
                                     >Edit</router-link
                                 >
                                 <span class="product-option-button link-underline product-copy" @click="handleDuplicateProduct(product)"
@@ -66,7 +83,7 @@
                     </div>
                 </div>
                 <Pagination
-                    class="pag"
+                    class="pagination"
                     v-if="paginationData"
                     :paginationData="paginationData"
                     color="rgb(22, 88, 212)"
@@ -79,7 +96,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import useProductImage from '../../hooks/useProductImage';
 import LoadingOverlay from '../LoadingOverlay.vue';
@@ -101,6 +118,8 @@ const productCreatedTime = (timeData) => {
 
     return `${date} ${formattedTime}`;
 };
+
+watch(productsPerPage, (amount) => getProducts({ amount }));
 
 const getProducts = async ({ page = 1, amount = productsPerPage.value }) => {
     try {
@@ -147,6 +166,8 @@ const handleDuplicateProduct = async (product) => {
     };
 
     const data = new FormData();
+
+    console.log(data);
 
     for (const key of Object.keys(productData)) {
         if (key === 'categories') {
@@ -197,7 +218,7 @@ const handleDuplicateProduct = async (product) => {
 
     try {
         productsLoading.value = true;
-        await store.dispatch('addProduct', { fafa: 's' });
+        await store.dispatch('addProduct', data);
         getProducts({ page: paginationData.value.page });
     } catch (error) {
         console.log(error);
@@ -216,7 +237,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.pag {
+.pagination {
     margin-top: 25px;
 }
 
@@ -368,5 +389,34 @@ onMounted(async () => {
     font-size: 30px;
     color: #0050e6;
     transition: 0.2s;
+}
+
+.select-wrap {
+    position: relative;
+    width: fit-content;
+    cursor: pointer;
+}
+
+#products-select {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 3px 5px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.11);
+}
+
+#products-select:not(option) {
+    text-align: center;
+    font-weight: 600;
+}
+
+.options-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 </style>

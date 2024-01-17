@@ -31,19 +31,23 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import { useStore } from 'vuex';
 import isValidHexCode from '../helpers/isValidHexCode';
 import CustomCheckbox from './CustomCheckbox.vue';
 
-const props = defineProps({ products: { default: [] } });
+// const props = defineProps({ products: { default: [] } });
+const products = ref([]);
 const emit = defineEmits(['filter-change']);
+
+const store = useStore();
 
 const filterData = ref([]);
 
 const isSelectedFilter = (val1, val2) => filterData.value.find((item) => item[0] === val1 && item[1] === val2);
 
 const productsMetaData = computed(() => {
-    const metaData = props.products.filter((product) => product.meta_data);
+    const metaData = products.value.filter((product) => product.meta_data);
 
     const data = {};
 
@@ -89,12 +93,19 @@ const handleFilterToggle = async (filterName, value) => {
     }
 
     filterData.value.forEach(([name, value], index) => {
-        filterString += `meta_data.${name} ~ '${value}'`;
+        const correctName = name.replaceAll('-', '_');
+        filterString += `meta_data.${correctName} ~ '${value}'`;
         if (index !== filterData.value.length - 1) filterString += ' || ';
     });
 
     emit('filter-change', { filter: filterString });
 };
+
+onMounted(async () => {
+    const response = await store.dispatch('getProducts', { amount: 500, returnData: true });
+    console.log(response);
+    products.value = response.items;
+});
 </script>
 
 <style scoped>

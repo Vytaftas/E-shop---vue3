@@ -8,6 +8,26 @@ const getters = {
 const collectionName = 'users';
 
 const actions = {
+    async getAllUsers({ commit, dispatch }, data) {
+        try {
+            return await this.$db_api.getAllUsers(data);
+
+            // console.log(products);
+
+            // dispatch('addNotification', {
+            //     message: 'Vartotojas sėkmingai atnaujintas',
+            //     type: 'success',
+            // });
+        } catch (error) {
+            console.log(error);
+            // console.log(error);
+            // dispatch('addNotification', {
+            //     message: 'Nepavyko atnaujinti vartotojo',
+            //     type: 'error',
+            // });
+        }
+    },
+
     async updateUser({ dispatch }, data) {
         try {
             await this.$db_api.updateCollectionItem({ collectionName, id: data.id, data: data.data });
@@ -111,6 +131,23 @@ const actions = {
         } catch (error) {
             dispatch('addNotification', {
                 message: 'Nepavykto pakeisti slaptažodžio',
+                type: 'error',
+            });
+
+            throw new Error(error.message);
+        }
+    },
+    async updatePermissions({ dispatch }, data) {
+        try {
+            await this.$db_api.updatePermissions(data);
+
+            dispatch('addNotification', {
+                message: 'Permissions successfully updated',
+                type: 'success',
+            });
+        } catch (error) {
+            dispatch('addNotification', {
+                message: 'Failed to update permissions',
                 type: 'error',
             });
 
