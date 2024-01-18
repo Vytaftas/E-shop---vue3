@@ -11,6 +11,7 @@ import HomePage from '../view/HomePage.vue';
 import LoginRegister from '../components/Forms/LoginRegister.vue';
 import AdminDashboard from '../view/AdminDashboard.vue';
 import ManageProducts from '../components/Admin/ManageProducts.vue';
+import ManageMeta from '../components/Admin/ManageMeta.vue';
 import ManageCategories from '../components/Admin/ManageCategories.vue';
 import ManageUsers from '../components/Admin/ManageUsers.vue';
 import Dashboard from '../components/Admin/Dashboard.vue';
@@ -24,6 +25,7 @@ const routes = [
         children: [
             { name: 'Dashboard', path: '', component: Dashboard },
             { name: 'Manage Products', path: 'manage-products', component: ManageProducts },
+            { name: 'Manage Products Metadata', path: 'manage-metadata', component: ManageMeta },
             { name: 'Edit Product', path: 'manage-products/:id', component: EditProduct },
             { name: 'Add Product', path: 'manage-products/add-new', component: EditProduct, props: { addNew: true } },
             { name: 'Manage Categories', path: 'manage-categories', component: ManageCategories },

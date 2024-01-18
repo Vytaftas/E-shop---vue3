@@ -64,6 +64,24 @@ const actions = {
         }
     },
 
+    async getAllMetaData({ commit, dispatch }) {
+        try {
+            return await this.$db_api.getAllMetaData();
+
+            // dispatch('addNotification', {
+            //     message: 'Vartotojas sėkmingai atnaujintas',
+            //     type: 'success',
+            // });
+        } catch (error) {
+            console.log(error);
+            // console.log(error);
+            // dispatch('addNotification', {
+            //     message: 'Nepavyko atnaujinti vartotojo',
+            //     type: 'error',
+            // });
+        }
+    },
+
     async getProduct({ commit, dispatch }, id) {
         try {
             const product = await this.$db_api.getProduct(id);

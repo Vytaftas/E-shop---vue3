@@ -210,6 +210,7 @@ onMounted(() => {
 .category-image {
     min-height: 75px;
     min-width: 75px;
+    border-radius: 5px;
     position: relative;
 }
 

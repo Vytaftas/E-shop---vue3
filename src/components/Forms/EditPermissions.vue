@@ -1,24 +1,23 @@
 <template>
-    <pre>
-        {{ newData }}
-    </pre>
     <div class="permissions-wrap">
         <h3>Edit Permissions</h3>
 
-        <form @submit.prevent="handlePermissionsSave(newData.id)" class="permissions">
-            <div class="single-permission" v-for="(value, key, index) of permissionsData(newData)" :key="key">
-                <ToggleSwitch :defaultValue="value" :text="toggleSwitchText(key)" @value-changed="newData[key] = $event" />
+        <form @submit.prevent="handlePermissionsSave(newData.permissions.id)" class="permissions">
+            <div class="single-permission" v-for="(value, key, index) of permissionsData(newData.permissions)" :key="key">
+                <ToggleSwitch :defaultValue="value" :text="toggleSwitchText(key)" @value-changed="newData.permissions[key] = $event" />
             </div>
 
-            <button type="submit" class="button-main">Save</button>
+            <button type="submit" class="button-main">{{ permissionsSaving ? 'Saving..' : 'Save' }}</button>
         </form>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { useStore } from 'vuex';
 import ToggleSwitch from '../Misc/ToggleSwitch.vue';
+
+const eventBus = inject('eventBus');
 
 const store = useStore();
 
@@ -28,13 +27,23 @@ const props = defineProps({
 
 const newData = ref(JSON.parse(JSON.stringify(props.data)));
 
+const permissionsSaving = ref(false);
+
 const handlePermissionsSave = async (permissionsId) => {
+    if (newData.value.permissions.isNew) {
+        eventBus.emit('new-permissions-save', newData.value);
+        return store.dispatch('closeModal');
+    }
+
     try {
-        await store.dispatch('updatePermissions', { permissionsId, data: newData.value });
+        permissionsSaving.value = true;
+        await store.dispatch('updatePermissions', { permissionsId, data: newData.value.permissions });
+        eventBus.emit('permissions-save');
+        store.dispatch('closeModal');
     } catch (error) {
         console.log(error);
     } finally {
-        //not saving
+        permissionsSaving.value = false;
     }
 };
 
@@ -75,5 +84,10 @@ h3 {
 
 .button-main {
     margin-top: 10px;
+    background-color: #004ad3;
+}
+
+.button-main:hover {
+    background-color: #0059ff;
 }
 </style>

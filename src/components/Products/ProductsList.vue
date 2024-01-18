@@ -156,6 +156,7 @@ const handleRemoveFromCart = async (item) => {
 
 .product-categories {
     display: flex;
+    flex-wrap: wrap;
     gap: 5px;
 }
 

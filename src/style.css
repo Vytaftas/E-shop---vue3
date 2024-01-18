@@ -123,6 +123,14 @@ h6 {
     text-decoration-color: inherit;
 }
 
+.link-underline {
+    text-decoration: 1px underline transparent;
+    transition: 0.2s;
+}
+.link-underline:hover {
+    text-decoration-color: inherit;
+}
+
 ::-webkit-scrollbar {
     width: 8px;
     transition: 0.3s;

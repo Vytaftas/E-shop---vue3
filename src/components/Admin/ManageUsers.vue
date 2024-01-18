@@ -1,28 +1,4 @@
 <template>
-    <!-- {
-  "avatar": "",
-  "cart_id": "kovm68nyp2lyui4",
-  "collectionId": "_pb_users_auth_",
-  "collectionName": "users",
-  "created": "2023-12-21 13:31:34.581Z",
-  "email": "gaga@gaga.lt",
-  "emailVisibility": true,
-  "id": "52x2jenzw1p5fyu",
-  "name": "",
-  "permissions_id": "mrr8sov51preqaa",
-  "updated": "2024-01-03 14:32:49.087Z",
-  "username": "gaga",
-  "verified": false
-} -->
-
-    <!-- avatar, name, username, created, updated  -->
-    <!-- cart_id, permissions_id,  -->
-    <pre>
-        <div v-if="newUsers?.length">
-            {{ newUsers[0] }}
-        </div>
-        
-    </pre>
     <div class="manage-users-wrapper">
         <LoadingOverlay v-if="usersLoading" background="transparent" color="black" />
         <div class="manage-users">
@@ -45,7 +21,7 @@
                 <div class="divider"></div>
 
                 <div class="users-wrap">
-                    <div class="single-user" v-for="(user, index) of newUsers" :key="user.id">
+                    <div class="single-user" v-for="(user, index) of newUsers" :key="index">
                         <div class="user-image-block">
                             <label :for="'user-image' + index" class="user-image-label">
                                 <div class="user-image centered-background" :style="userImage(user.id, user.avatar)">
@@ -78,14 +54,14 @@
                         </div>
 
                         <div class="user-permissions-wrap">
-                            <span @click="handleOpenModal(user.expand.permissions_id)">Edit</span>
+                            <span @click="handleOpenModal(user?.expand?.permissions_id, index)" class="link-underline edit-button">Edit</span>
                         </div>
 
                         <div class="user-actions-wrap">
-                            <button class="button-main save-button" @click="saveuser(user.id, index)">
+                            <button class="button-main save-button" @click="saveUser(user.id, index)">
                                 {{ usersSaving[index] ? 'Saving..' : 'Save' }}
                             </button>
-                            <button class="button-main delete-button" @click="deleteuser(user.id, index)">
+                            <button class="button-main delete-button" @click="deleteUser(user, index)">
                                 {{ usersDeleting[index] ? 'Deleting..' : 'Delete' }}
                             </button>
                         </div>
@@ -97,14 +73,16 @@
 </template>
 
 <script setup>
-import NoImage from '../../assets/no-image.png';
-import { markRaw, onMounted, reactive, ref, watch } from 'vue';
+import { inject, markRaw, onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import NoImage from '../../assets/no-image.png';
 import LoadingOverlay from '../LoadingOverlay.vue';
 import EditPermissions from '../Forms/EditPermissions.vue';
-import ToggleSwitch from '../Misc/ToggleSwitch.vue';
+import generatePassword from '../../helpers/generatePassword';
 
 const store = useStore();
+
+const eventBus = inject('eventBus');
 
 const users = ref(null);
 const paginationData = ref(null);
@@ -114,6 +92,11 @@ const newUsers = ref(null);
 const usersLoading = ref(false);
 const usersSaving = reactive({});
 const usersDeleting = reactive({});
+
+eventBus.on('permissions-save', () => getAllUsers());
+eventBus.on('new-permissions-save', (data) => {
+    newUsers.value[data.index].expand = { permissions_id: data.permissions };
+});
 
 const userImage = (id, imageUrl) => {
     if (!imageUrl) return { backgroundImage: `url('${NoImage}')` };
@@ -146,50 +129,93 @@ const handleImageChange = (e, index) => {
     reader.readAsDataURL(file);
 };
 
-const handleOpenModal = (data) => store.dispatch('openModal', { component: markRaw(EditPermissions), data });
+const handleOpenModal = (data, index) => store.dispatch('openModal', { component: markRaw(EditPermissions), data: { permissions: data, index } });
 
-// const addNewuser = () => {
-//     newUsers.value.unshift({ name: 'New user', link: 'user-link', image: '', new: true });
-// };
+const addNewUser = () => {
+    newUsers.value.unshift({
+        name: 'Name',
+        username: 'Username',
+        cart_id: '',
+        expand: {
+            permissions_id: {
+                add_categories: false,
+                add_products: false,
+                add_users: false,
+                delete_categories: false,
+                delete_products: false,
+                delete_users: false,
+                edit_categories: false,
+                edit_products: false,
+                edit_users: false,
+                isNew: true,
+            },
+        },
+        permissions_id: '',
+        email: 'email@email.com',
+        avatar: '',
+        new: true,
+    });
+};
 
-// const saveuser = async (userId, index) => {
-//     const data = new FormData();
+const saveUser = async (userId, index) => {
+    const userData = new FormData();
 
-//     Object.keys(newUsers.value[index]).forEach((key) => {
-//         if (key === 'image' || key === 'name' || key === 'link') data.append(key, newUsers.value[index][key]);
-//     });
+    console.log(newUsers.value[0]);
 
-//     try {
-//         usersSaving[index] = true;
-//         if (newUsers.value[index].new) {
-//             await store.dispatch('adduser', data);
-//             delete newUsers.value[index].new;
-//         } else {
-//             await store.dispatch('updateuser', { userId, data });
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     } finally {
-//         usersSaving[index] = false;
-//     }
-// };
+    const keysToUpdate = ['avatar', 'name', 'username', 'email'];
+    const ff = {};
 
-// const deleteuser = async (userId, index) => {
-//     const isConfirmed = window.confirm('Are you sure you want to delete this user?');
+    Object.keys(newUsers.value[index]).forEach((key) => {
+        if (keysToUpdate.includes(key)) {
+            userData.append(key, newUsers.value[index][key]);
+            ff[key] = newUsers.value[index][key];
+        }
+    });
 
-//     if (!isConfirmed) return;
+    console.log(ff);
 
-//     try {
-//         usersDeleting[index] = true;
+    try {
+        usersSaving[index] = true;
+        console.log(newUsers.value[index]);
+        if (newUsers.value[index].new) {
+            delete newUsers.value[index].expand.permissions_id.isNew;
 
-//         await store.dispatch('deleteuser', userId);
-//         getAvailableusers();
-//     } catch (error) {
-//         console.log(error);
-//     } finally {
-//         usersDeleting[index] = false;
-//     }
-// };
+            const password = generatePassword(8);
+
+            userData.append('emailVisibility', true);
+            userData.append('password', password);
+            userData.append('passwordConfirm', password);
+
+            await store.dispatch('addUser', { userData, newPermissions: newUsers.value[index].expand.permissions_id });
+            await getAllUsers();
+        } else {
+            await store.dispatch('updateUser', { userId, userData });
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        usersSaving[index] = false;
+    }
+};
+
+const deleteUser = async (user, index) => {
+    if (newUsers.value[index].new) return newUsers.value.splice(index, 1);
+
+    const isConfirmed = window.confirm('Are you sure you want to delete this user?');
+
+    if (!isConfirmed) return;
+
+    try {
+        usersDeleting[index] = true;
+
+        await store.dispatch('deleteUser', user);
+        await getAllUsers();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        usersDeleting[index] = false;
+    }
+};
 
 const getAllUsers = async () => {
     try {
@@ -247,11 +273,12 @@ onMounted(() => {
     min-height: 75px;
     min-width: 75px;
     position: relative;
+    border-radius: 5px;
 }
 
 .single-user {
     display: grid;
-    grid-template-columns: 75px 200px 200px 200px 200px 200px;
+    grid-template-columns: 75px 200px 200px 200px 150px 200px;
     align-items: center;
 }
 
@@ -369,5 +396,10 @@ onMounted(() => {
 }
 .delete-button:hover {
     background-color: rgb(255, 0, 0);
+}
+
+.edit-button {
+    color: #004ad3;
+    cursor: pointer;
 }
 </style>

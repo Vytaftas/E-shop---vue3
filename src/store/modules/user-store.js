@@ -28,34 +28,50 @@ const actions = {
         }
     },
 
+    async addUser({ dispatch }, data) {
+        try {
+            await this.$db_api.addUser(data);
+
+            dispatch('addNotification', {
+                message: 'User added successfully',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error.response);
+            dispatch('addNotification', {
+                message: 'Failed to add user',
+                type: 'error',
+            });
+        }
+    },
     async updateUser({ dispatch }, data) {
         try {
-            await this.$db_api.updateCollectionItem({ collectionName, id: data.id, data: data.data });
+            await this.$db_api.updateUser(data);
 
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            dispatch('addNotification', {
+                message: 'User updated successfully',
+                type: 'success',
+            });
         } catch (error) {
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
+            console.log(error.response);
+            dispatch('addNotification', {
+                message: 'Failed to update user',
+                type: 'error',
+            });
         }
     },
 
-    async deleteUser({ dispatch }, id) {
+    async deleteUser({ dispatch }, user) {
         try {
-            await this.$db_api.deleteCollectionItem({ collectionName, id });
+            await this.$db_api.deleteUser(user);
 
             dispatch('addNotification', {
-                message: 'Vartotojas sėkmingai ištrintas',
+                message: 'User deleted successfully',
                 type: 'success',
             });
         } catch (error) {
             dispatch('addNotification', {
-                message: 'Nepavyko ištrinti vartotojo',
+                message: 'Failed to delete user',
                 type: 'error',
             });
         }

@@ -72,7 +72,6 @@ export const DB_API = (store) =>
         async getAllUsers({ page = 1, amount = 12 }) {
             try {
                 const productsData = await PocketBaseDB.collection('users').getList(page, amount, {
-                    // expand: 'product_ratings(product_id).user_id, categories, rating_id',
                     sort: '-created',
                     expand: 'permissions_id',
                 });
@@ -104,10 +103,44 @@ export const DB_API = (store) =>
 
         async updateProduct(data) {
             const { productId, formData } = data;
-            console.log(productId);
-            console.log(formData);
+
             try {
                 return await PocketBaseDB.collection('products').update(productId, formData);
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async addUser(data) {
+            const { userData, newPermissions } = data;
+
+            try {
+                const user = await PocketBaseDB.collection('users').create(userData);
+
+                const permissions = await this.createPermissions(newPermissions);
+
+                const cart = await this.createCart(user.id);
+
+                return await PocketBaseDB.collection('users').update(user.id, { cart_id: cart.id, permissions_id: permissions.id });
+            } catch (error) {
+                throw error;
+            }
+        },
+
+        async updateUser(data) {
+            const { userId, userData } = data;
+
+            try {
+                return await PocketBaseDB.collection('users').update(userId, userData);
+            } catch (error) {
+                throw error;
+            }
+        },
+        async deleteUser(user) {
+            try {
+                await PocketBaseDB.collection('users').delete(user.id);
+                await this.deleteCart(user.cart_id);
+                await this.deletePermissions(user.permissions_id);
             } catch (error) {
                 throw error;
             }
@@ -117,6 +150,16 @@ export const DB_API = (store) =>
             try {
                 return await PocketBaseDB.collection('available_categories').getFullList({
                     ...filterData,
+                    sort: '-created',
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        async getAllMetaData() {
+            try {
+                return await PocketBaseDB.collection('meta_data').getFullList({
                     sort: '-created',
                 });
             } catch (error) {
@@ -192,6 +235,22 @@ export const DB_API = (store) =>
             }
         },
 
+        async createCart(user_id) {
+            try {
+                return await PocketBaseDB.collection('carts').create({ user_id });
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        async deleteCart(id) {
+            try {
+                return await PocketBaseDB.collection('carts').delete(id);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
         async addReview(data) {
             try {
                 return await PocketBaseDB.collection('product_ratings').create(data);
@@ -236,9 +295,23 @@ export const DB_API = (store) =>
             }
         },
 
+        async createPermissions(data) {
+            try {
+                return await PocketBaseDB.collection('permissions').create(data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
         async updatePermissions({ permissionsId, data }) {
             try {
                 return await PocketBaseDB.collection('permissions').update(permissionsId, data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async deletePermissions(id) {
+            try {
+                return await PocketBaseDB.collection('permissions').delete(id);
             } catch (error) {
                 console.log(error);
             }

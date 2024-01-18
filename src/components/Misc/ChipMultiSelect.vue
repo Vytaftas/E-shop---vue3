@@ -58,13 +58,6 @@ const handleRemoveCategory = (currentItem) => {
     newSelectedItems.value = newSelectedItems.value.filter((item) => item.id !== currentItem.id);
 
     emit('items-change', newSelectedItems.value);
-
-    // const newSelectedItems = newSelectedItems.value.value.filter((item) => !props.product.expand.categories.includes(item)); //images to add
-    // const originalCategories = newSelectedItems.value.value.filter((item) => props.product.expand.categories.includes(item));
-
-    // const isTheSame = arraysAreEqual(originalCategories, props.product.expand.categories); // use to upload changed existing images
-
-    // newSelectedItems.value.changed = !arraysAreEqual(props.product.expand.categories, newSelectedItems.value.value);
 };
 
 const closeList = () => {
