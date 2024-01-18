@@ -11,36 +11,61 @@
                 <span>Add New</span>
             </div>
 
-            <div class="metas-data">
-                <div class="single-meta meta-headings">
-                    <div>Meta Name</div>
-                    <div>Data</div>
-                    <div class="metas-delete-heading">Actions</div>
-                </div>
+            add new meta name - name - value
 
-                <div class="divider"></div>
+            <div class="metas-block">
+                <div class="metas-data" v-for="(mainMetaValue, mainMetaKey, mainMetaIndex) of newMeta" :key="mainMetaIndex">
+                    <h3 class="meta-block-name">{{ mainMetaValue.name }}</h3>
 
-                <div class="metas-wrap">
-                    <div class="single-meta" v-for="(value, key, index) of newMeta" :key="index">
-                        <div class="meta-name-wrap">
-                            <p>{{ value.name }}</p>
+                    <div class="divider"></div>
 
-                            <!-- <input class="meta-name editable" type="text" v-model="meta.data_name" /> -->
-                        </div>
-
+                    <div class="metas-wrap">
                         <div class="meta-data-wrap">
-                            <span v-for="meta of value.data" :key="meta.id">{{ meta.name }} {{ meta.value }}</span>
-                            <ChipMultiSelect :availableItems="value.data" :selectedItems="value.data" />
-                            <!-- <input class="meta-data editable" type="text" v-model="meta.data" /> -->
-                        </div>
+                            <div class="single-meta-item" v-for="(value, index) of mainMetaValue.data" :key="value.id">
+                                <!-- <div class="single-input-wrap">
+                                    <label :for="mainMetaValue.name + index">Meta Name</label>
+                                    <input
+                                        type="text"
+                                        :name="mainMetaValue.name + index"
+                                        :id="mainMetaValue.name + index"
+                                        v-model="mainMetaValue.name"
+                                    />
+                                </div> -->
+                                <div class="single-input-wrap">
+                                    <label :for="value.name + index">Name</label>
+                                    <input type="text" :name="value.name + index" :id="value.name + index" v-model="value.name" />
+                                </div>
+                                <div class="single-input-wrap">
+                                    <label :for="value.value + index">Value</label>
+                                    <div class="value-wrap">
+                                        <input
+                                            type="text"
+                                            class="value-input"
+                                            :name="value.value + index"
+                                            :id="value.value + index"
+                                            v-model="value.value"
+                                        />
+                                        <div class="color-select-wrap">
+                                            <label :for="'color-select' + value.value + index" class="color-select-label">
+                                                <div class="color-block" :style="{ backgroundColor: value.value }"></div>
+                                            </label>
 
-                        <div class="meta-actions-wrap">
-                            <button class="button-main save-button" @click="saveMeta(meta.id, index)">
-                                {{ metaSaving[index] ? 'Saving..' : 'Save' }}
-                            </button>
-                            <button class="button-main delete-button" @click="deletemeta(meta, index)">
-                                {{ metaDeleting[index] ? 'Deleting..' : 'Delete' }}
-                            </button>
+                                            <input
+                                                type="color"
+                                                class="color-select-input"
+                                                :name="'color-select' + value.value + index"
+                                                :id="'color-select' + value.value + index"
+                                                @change="value.value = $event.target.value"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="meta-actions-wrap">
+                                    <p class="save-meta link-underline">Save</p>
+                                    <p class="delete-meta link-underline">Delete</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -52,8 +77,8 @@
 <script setup>
 import { inject, onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import isValidHexCode from '../../helpers/isValidHexCode';
 import LoadingOverlay from '../LoadingOverlay.vue';
-import ChipMultiSelect from '../Misc/ChipMultiSelect.vue';
 
 const store = useStore();
 
@@ -196,6 +221,8 @@ const getAllMetaData = async () => {
         metaLoading.value = true;
         const response = await store.dispatch('getAllMetaData');
 
+        console.log(response);
+
         const data = {};
 
         for (let item of response) {
@@ -217,6 +244,86 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.metas-block {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.meta-block-name {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.meta-data-wrap {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.single-meta-item {
+    display: flex;
+    width: fit-content;
+    padding: 20px;
+    padding-bottom: 45px;
+    background-color: #005bff1c;
+    gap: 10px;
+    position: relative;
+}
+.single-input-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-actions-wrap {
+    position: absolute;
+    left: 20px;
+    bottom: 10px;
+}
+
+.delete-meta {
+    cursor: pointer;
+    color: rgb(199, 0, 0);
+    transition: 0.2s;
+}
+
+.save-meta {
+    cursor: pointer;
+    color: #004ad4;
+    transition: 0.2s;
+}
+
+.value-input {
+    position: relative;
+}
+
+.color-select-wrap {
+    position: absolute;
+    top: calc(50% - 1px);
+    right: 21px;
+    height: 16px;
+    transform: translateY(-50%);
+}
+.color-select-label {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.color-block {
+    height: 16px;
+    width: 16px;
+    border-radius: 100%;
+}
+
+.color-select-input {
+    opacity: 0;
+    visibility: hidden;
+    width: 20px;
+    height: 20px;
+    transform: translateY(-100%);
+}
+
+/*  */
 .manage-metas-wrapper {
     position: relative;
     height: 100%;
@@ -251,13 +358,8 @@ onMounted(() => {
 }
 
 .single-meta {
-    display: grid;
-    grid-template-columns: 200px 1fr 200px;
+    display: flex;
     align-items: center;
-}
-
-.single-meta > div:not(.meta-image-heading, .meta-image-block) {
-    padding: 10px 30px;
 }
 
 .meta-headings .meta-image-heading {
