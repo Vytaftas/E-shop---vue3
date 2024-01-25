@@ -93,6 +93,7 @@ h6 {
 .error-message {
     color: #dd0000;
     font-size: 12px;
+    font-style: italic;
 }
 
 .button-main {

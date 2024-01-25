@@ -1,67 +1,105 @@
 <template>
-    <div class="product-meta-data" v-if="newMetaData.value">
-        <div class="add-new-meta-wrap" @click.prevent="addMetaBlock">
-            <i class="fa-solid fa-square-plus"></i>
-            <span>Add New</span>
+    <div class="add-new-meta-wrap" @click.prevent="addNewMetaVisible = !addNewMetaVisible">
+        <i class="fa-solid fa-square-plus"></i>
+        <span>Add New</span>
+    </div>
+
+    <div v-if="addNewMetaVisible" class="add-new-meta-block-wrap">
+        <div class="single-meta-input-wrap">
+            <label for="add-new-meta-block-name">Meta</label>
+            <select
+                class="meta-select"
+                name="add-new-meta-block-name"
+                id="add-new-meta-block-name"
+                @change="selectedMetaBlockToAdd = $event.target.value"
+            >
+                <option value="not-available" v-if="availableMetaBlocksSelections && !Object.keys(availableMetaBlocksSelections).length">
+                    All available meta blocks added
+                </option>
+                <option
+                    :value="optionKey"
+                    v-for="(optionValue, optionKey, optionIndex) of availableMetaBlocksSelections"
+                    :key="'meta-option-' + optionKey + '-' + optionIndex"
+                >
+                    {{ optionKey }}
+                </option>
+            </select>
         </div>
-        <div class="flex-column" v-for="(value, dataIndex) of newMetaData.value" :key="value.name + '-' + dataIndex">
-            <i class="fa-solid fa-xmark remove-meta-block-icon" @click.prevent="removeMetaBlock(dataIndex)"></i>
-            <div class="meta-heading-wrap">
-                <div class="meta-name-input-wrap">
-                    <input
-                        type="text"
-                        :value="newMetaData.value[dataIndex].name"
-                        @change="handleMetaBlockNameChange($event, dataIndex)"
-                        class="meta-name-input"
-                    />
-                    <p class="error-message" v-if="!newMetaData.value[dataIndex].name.trim()">Meta name can't be empty.</p>
-                </div>
-                <div class="checkbox-wrap">
-                    <input
-                        type="checkbox"
-                        :id="'color-checkbox-' + dataIndex"
-                        :checked="newMetaData.value[dataIndex].useColors"
-                        @change="handleColorCheckboxChange($event, dataIndex)"
-                    />
-                    <label :for="'color-checkbox-' + dataIndex">Use colors?</label>
-                </div>
+
+        <div class="single-meta-input-wrap" v-if="selectedMetaBlockToAdd">
+            <label for="add-new-meta-name">Name</label>
+            <select class="meta-select" name="add-new-meta-name" id="add-new-meta-name" v-model="selectedMetaName">
+                <option
+                    :value="metaNameValue"
+                    v-for="metaNameValue of availableMetaBlocksSelections[selectedMetaBlockToAdd]?.data"
+                    :key="'meta-name-option-' + metaNameValue.id"
+                >
+                    {{ metaNameValue.name }}
+                </option>
+            </select>
+        </div>
+
+        <button v-if="selectedMetaBlockToAdd" @click="handleAddNewMetaBlock(selectedMetaName)" class="add-new-meta-block-button button-main">
+            Add
+        </button>
+    </div>
+
+    <div v-if="!metaBlocksEmpty" class="meta-blocks-wrap">
+        <div class="single-meta-block" v-for="(metaValue, metaKey, metaIndex) of availableMetaBlocks" :key="metaKey + metaIndex">
+            <h4 class="meta-block-name">{{ metaKey }}</h4>
+            <div class="meta-input-wrap">
+                <input
+                    type="text"
+                    name="meta-input"
+                    :id="'meta-input-' + metaKey + metaIndex"
+                    placeholder="Add available meta.."
+                    @focus="availableMetaVisible[metaKey] = true"
+                    @focusout="closeAvailableMeta(metaKey)"
+                    v-model="availableMetaFilterValues[metaKey]"
+                />
+
+                <ul v-if="availableMeta && availableMetaVisible[metaKey]" class="available-meta-selections">
+                    <li
+                        class="single-meta-selection"
+                        v-for="metaSelection of availableSelectionData(metaKey)"
+                        :key="'meta-selection-' + metaSelection.id"
+                        @click="handleAddMeta(metaSelection)"
+                    >
+                        {{ metaSelection.name }}
+                    </li>
+
+                    <li
+                        v-if="!availableSelectionData(metaKey)?.length"
+                        class="single-meta-selection"
+                        :key="'meta-selection-not-available-' + metaKey + '-' + metaIndex"
+                    >
+                        Not available
+                    </li>
+                </ul>
             </div>
-
-            <div class="meta-wrap-container">
-                <div class="single-meta-wrap" v-for="(metaItem, index) of value.data" :key="metaItem.name + '-' + metaItem.value">
-                    <div class="color-select-input-wrap">
-                        <i class="fa-solid fa-xmark remove-meta-key-icon" @click.prevent="removeMetaItem(dataIndex, index)"></i>
-                        <label v-if="value.useColors" :for="'color-select-' + metaItem.name + '-' + metaItem.value + '-' + index">
-                            <div class="color-block" :style="{ backgroundColor: newMetaData.value[dataIndex].data[index].value }"></div>
-                        </label>
-                        <input
-                            class="color-input"
-                            type="color"
-                            name="color-select"
-                            :id="'color-select-' + metaItem.name + '-' + metaItem.value + '-' + index"
-                            :value="newMetaData.value[dataIndex].data[index].value"
-                            @change="handleMetaColorChange($event, dataIndex, index)"
-                        />
-                        <input
-                            type="text"
-                            :value="newMetaData.value[dataIndex].data[index].name"
-                            @change="handleMetaNameChange($event, dataIndex, index)"
-                        />
-
-                        <p class="error-message" v-if="!newMetaData.value[dataIndex].data[index].name.trim()">Name can't be empty.</p>
+            <div class="divider"></div>
+            <div class="selected-meta-wrap">
+                <div class="single-meta-wrap" v-for="meta of metaValue.data" :key="meta.id">
+                    <div class="single-meta">
+                        <div class="color-block-wrap" v-if="isValidHexCode(meta.value)">
+                            <div class="color-block" :style="{ backgroundColor: meta.value }"></div>
+                        </div>
+                        <div class="meta-name-wrap" :style="{ paddingLeft: !isValidHexCode(meta.value) && '10px' }">
+                            <p class="meta-name">{{ meta.name }}</p>
+                        </div>
+                        <i class="fa-solid fa-xmark meta-remove-icon" @click="handleRemoveMeta(meta)"></i>
                     </div>
-                </div>
-
-                <div class="add-new-meta-wrap" @click.prevent="addMetaItem(dataIndex)">
-                    <i class="fa-solid fa-square-plus"></i>
                 </div>
             </div>
         </div>
     </div>
+    <p v-else>No meta data added.</p>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useStore } from 'vuex';
+import isValidHexCode from '../../../helpers/isValidHexCode';
 
 const props = defineProps({
     meta: { default: null },
@@ -70,204 +108,214 @@ const props = defineProps({
 
 const emit = defineEmits(['meta-change']);
 
-const newMetaData = ref(JSON.parse(JSON.stringify(props.meta)));
+const store = useStore();
 
-const addMetaBlock = () => {
-    const isDuplicateKey = (keyName, count = 1) => {
-        const name = keyName + '_' + count;
+const addNewMetaVisible = ref(false);
+const availableMeta = ref(null);
+const availableMetaVisible = reactive({});
+const availableMetaFilterValues = reactive({});
+const metaBlocksEmpty = ref(false);
 
-        const exists = Object.keys(newMetaData.value.value).some((key) => {
-            console.log(newMetaData.value.value[key].name);
-            console.log(name);
-            return newMetaData.value.value[key].name === name;
+const newMetaItems = ref(Object.keys(props.meta).length ? JSON.parse(JSON.stringify(props.meta)) : {});
+
+const availableMetaBlocks = computed(() => {
+    const filteredAvailableMeta = {};
+
+    for (let key of Object.keys(newMetaItems.value)) {
+        if (newMetaItems.value[key].data.length) filteredAvailableMeta[key] = newMetaItems.value[key];
+    }
+
+    Object.keys(filteredAvailableMeta).length ? (metaBlocksEmpty.value = false) : (metaBlocksEmpty.value = true);
+
+    return filteredAvailableMeta;
+});
+
+const handleAddNewMetaBlock = (metaItem) => {
+    if (!Object.keys(availableMetaBlocksSelections.value).length) return;
+
+    newMetaItems.value[metaItem.data_name] = { name: metaItem.data_name, data: [metaItem] };
+
+    emit('meta-change', newMetaItems.value);
+};
+
+const selectedMetaBlockToAdd = ref('');
+
+watch(selectedMetaBlockToAdd, (val) => {
+    if (availableMetaBlocksSelections.value[val]?.data) selectedMetaName.value = availableMetaBlocksSelections.value[val].data[0];
+});
+
+const selectedMetaName = ref('');
+
+const availableMetaBlocksSelections = computed(() => {
+    if (!availableMeta.value) return;
+
+    const available = {};
+
+    for (let key of Object.keys(availableMeta.value)) {
+        if (availableMetaBlocks.value[key]) continue;
+        available[key] = availableMeta.value[key];
+    }
+
+    selectedMetaBlockToAdd.value = Object.keys(available)[0];
+
+    return available;
+});
+
+const availableSelectionData = computed(() => {
+    return (dataBlockKey) => {
+        const filteredItems = availableMeta.value[dataBlockKey].data.filter((item) =>
+            newMetaItems.value[dataBlockKey].data.every((dataItem) => dataItem.id !== item.id)
+        );
+
+        return filteredItems.filter((item) => {
+            if (!availableMetaFilterValues[dataBlockKey]) return true;
+
+            return item.name.toLowerCase().includes(availableMetaFilterValues[dataBlockKey].toLowerCase());
         });
+    };
+});
 
-        if (exists) {
-            console.log('in exists');
-            count++;
-            return isDuplicateKey(keyName, count);
+const closeAvailableMeta = (metaKey) => {
+    setTimeout(() => {
+        availableMetaVisible[metaKey] = false;
+    }, 100);
+};
+
+const handleAddMeta = (meta) => {
+    newMetaItems.value[meta.data_name].data.push(meta);
+    emit('meta-change', newMetaItems.value);
+};
+const handleRemoveMeta = (meta) => {
+    newMetaItems.value[meta.data_name].data = newMetaItems.value[meta.data_name].data.filter((item) => item.id !== meta.id);
+    emit('meta-change', newMetaItems.value);
+};
+
+onMounted(async () => {
+    try {
+        const response = await store.dispatch('getAllMetaData');
+
+        const responseCopy = JSON.parse(JSON.stringify(response));
+
+        const availableMetaData = {};
+
+        for (let item of responseCopy) {
+            if (!availableMetaData[item.data_name]) availableMetaData[item.data_name] = { name: item.data_name, data: [] };
+            availableMetaData[item.data_name].data.push(item);
         }
 
-        return name;
-    };
-
-    const newKeyName = isDuplicateKey('new_meta');
-
-    newMetaData.value.value[newKeyName] = { name: newKeyName, data: [], useColors: false };
-
-    emit('meta-change', newMetaData.value);
-};
-
-const removeMetaBlock = (key) => {
-    delete newMetaData.value.value[key];
-    emit('meta-change', newMetaData.value.value);
-};
-
-const handleMetaBlockNameChange = (e, index) => {
-    newMetaData.value.value[index].name = e.target.value;
-    emit('meta-change', newMetaData.value.value);
-};
-
-const addMetaItem = (index) => {
-    const itemValue = newMetaData.value.value[index].useColors ? '#FFFFFF' : '';
-    newMetaData.value.value[index].data.push({ name: '', value: itemValue });
-    emit('meta-change', newMetaData.value.value);
-};
-const removeMetaItem = (dataIndex, index) => {
-    console.log(newMetaData.value.value);
-    newMetaData.value.value[dataIndex].data.splice(index, 1);
-    emit('meta-change', newMetaData.value.value);
-};
-
-const handleColorCheckboxChange = (e, index) => {
-    newMetaData.value.value[index].useColors = e.target.checked;
-    emit('meta-change', newMetaData.value.value);
-};
-
-const handleMetaColorChange = (e, key, index) => {
-    newMetaData.value.value[key].data[index].value = e.target.value;
-    emit('meta-change', newMetaData.value.value);
-};
-
-const handleMetaNameChange = (e, key, index) => {
-    newMetaData.value.value[key].data[index].name = e.target.value;
-    if (!newMetaData.value.value[key].useColors) newMetaData.value.value[key].data[index].value = e.target.value;
-    emit('meta-change', newMetaData.value.value);
-};
+        availableMeta.value = availableMetaData;
+    } catch (error) {
+        console.log(error);
+    }
+});
 </script>
 
 <style scoped>
-.flex-column {
-    display: flex;
-    flex-direction: column;
-    position: relative;
+.single-meta-wrap {
+    width: fit-content;
 }
 
-.product-meta-data {
+.meta-blocks-wrap {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.meta-wrap-container {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+.single-meta-block {
+    background-color: rgba(0, 140, 255, 0.11);
+    padding: 20px;
+    border-radius: 10px;
 }
-
-.color-select-input-wrap {
+.meta-block-name {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+.single-meta {
+    height: 32px;
     display: flex;
     align-items: center;
-    background-color: white;
-    max-width: 200px;
-    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.068);
-    border-radius: 3px;
+    border-radius: 25px;
     position: relative;
-    height: 36px;
+    background-color: white;
+    box-shadow: 0 3px 3px 0 #00000014;
 }
 
-.color-select-input-wrap label {
+.color-block-wrap {
+    padding: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-color: rgba(0, 140, 255, 0.11);
-    border-radius: 3px 0 0 3px;
-    cursor: pointer;
 }
-
-.color-select-input-wrap input {
-    padding: 0;
-    background-color: transparent;
-    border: none;
-    border-radius: 0;
-    outline: none;
-    padding: 5px 10px;
-    font-size: 14px;
-    padding-right: 24px;
-    height: 100%;
-}
-
-.color-select-input-wrap input:focus-visible {
-    border: none;
-    outline: none;
-}
-
 .color-block {
-    width: 18px;
-    height: 18px;
-    margin: 5px 10px;
+    width: 16px;
+    height: 16px;
     border-radius: 100%;
 }
 
-.color-select-input-wrap .color-input {
-    opacity: 0;
-    visibility: hidden;
-    position: absolute;
-    left: 0;
-    top: 0;
-}
-
-.meta-heading-wrap {
+.meta-name-wrap {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    transition: 0.2s;
 }
 
-.meta-name-input-wrap {
-    position: relative;
-    margin-bottom: 10px;
+.meta-name {
+    padding: 0 30px;
+    padding-left: 0;
 }
 
-.error-message {
+.meta-remove-icon {
     position: absolute;
-    left: 0px;
-    bottom: 0;
-    transform: translateY(calc(100% + 1px));
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.meta-heading-wrap input {
+.meta-remove-icon:hover {
+    color: rgb(189, 0, 0);
+}
+
+.meta-input-wrap {
+    display: flex;
+    flex-direction: column;
+    position: relative;
     width: fit-content;
 }
 
-.meta-heading-wrap .checkbox-wrap {
-    display: flex;
-    gap: 5px;
-}
-
-.product-meta-data .flex-column {
-    background-color: #005bff1c;
-    padding: 20px;
-    border-radius: 5px;
-    position: relative;
-}
-
-.remove-meta-block-icon {
-    color: rgba(0, 0, 0, 0.493);
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.remove-meta-block-icon:hover {
-    color: rgb(216, 0, 0);
-}
-
-.remove-meta-key-icon {
-    color: rgba(0, 0, 0, 0.493);
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    cursor: pointer;
-    transform: translateY(-50%);
-    transition: 0.2s;
+.meta-input-wrap input::placeholder {
     font-size: 14px;
+    font-style: italic;
 }
 
-.remove-meta-key-icon:hover {
-    color: rgb(216, 0, 0);
+.available-meta-selections {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform: translateY(100%);
+    background-color: white;
+    width: 100%;
+    z-index: 9;
+    box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.329);
+}
+
+.single-meta-selection {
+    padding: 5px;
+    transition: 0.2s;
+}
+.single-meta-selection:hover {
+    background-color: #0000000f;
+    cursor: pointer;
+}
+
+.selected-meta-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .add-new-meta-wrap {
@@ -276,31 +324,63 @@ const handleMetaNameChange = (e, key, index) => {
     gap: 10px;
     width: fit-content;
     cursor: pointer;
+    margin: 15px 0;
 }
+
 .add-new-meta-wrap:hover i {
     color: #0059ff;
 }
 
 .add-new-meta-wrap i {
-    font-size: 24px;
+    font-size: 30px;
     color: #0050e6;
     transition: 0.2s;
 }
 
-.meta-heading-wrap .meta-name-input {
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px solid transparent;
-    outline: none;
-    padding: 0;
-    border-radius: 0;
-    transition: 0.2s;
-    font-weight: 600;
-    font-size: 18px;
-    max-width: 100px;
+.add-new-meta-block-wrap {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    margin-bottom: 25px;
 }
 
-.meta-heading-wrap .meta-name-input:focus-visible {
-    border-color: black;
+.add-new-meta-block-wrap label {
+    font-weight: 500;
+}
+
+.single-meta-input-wrap {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+}
+
+.add-new-meta-block-button {
+    height: fit-content;
+}
+
+.meta-select {
+    padding: 5px;
+    outline: none;
+}
+
+.button-main {
+    padding: 5px 15px;
+}
+
+.meta-input-wrap input {
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid lightgray;
+    outline: none;
+    transition: 0.2s;
+}
+.meta-input-wrap input:focus-visible {
+    border: 1px solid gray;
+}
+
+.divider {
+    background-color: rgba(0, 0, 0, 0.082);
+    height: 1px;
+    margin: 20px 0;
 }
 </style>

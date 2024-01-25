@@ -46,10 +46,9 @@
                 :init="{
                     toolbar_mode: 'sliding',
                     menubar: 'edit insert view format table tools',
-                    plugins:
-                        'mentions anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange pageembed permanentpen footnotes advtemplate advtable advcode editimage tableofcontents  powerpaste a11ychecker typography inlinecss',
+                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
                     toolbar:
-                        'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                        'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
                     setup(editor) {
                         editor.on('change', () => checkIfChanged('description'));
                     },
@@ -116,6 +115,7 @@ input:focus-visible {
 }
 
 .input-label {
+    display: inline-block;
     font-weight: 500;
     margin-bottom: 3px;
 }

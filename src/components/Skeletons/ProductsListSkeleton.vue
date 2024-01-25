@@ -5,13 +5,9 @@
 
             <div class="product-content">
                 <div class="product-categories"></div>
-
                 <span class="product-name"></span>
-
                 <div class="product-rating"></div>
-
                 <p class="product-price-wrap"></p>
-
                 <div class="add-to-cart-button button-main"></div>
             </div>
         </div>

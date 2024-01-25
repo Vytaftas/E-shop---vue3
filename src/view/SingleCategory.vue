@@ -4,6 +4,7 @@
         :products="products"
         :columns="productColumns"
         :productsAmount="productsAmount"
+        :categoryName="categoryName"
         @filter-change="handleFilterChange"
     />
 </template>

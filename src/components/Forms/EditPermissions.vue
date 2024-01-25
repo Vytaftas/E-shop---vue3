@@ -3,7 +3,7 @@
         <h3>Edit Permissions</h3>
 
         <form @submit.prevent="handlePermissionsSave(newData.permissions.id)" class="permissions">
-            <div class="single-permission" v-for="(value, key, index) of permissionsData(newData.permissions)" :key="key">
+            <div class="single-permission" v-for="(value, key) of permissionsData(newData.permissions)" :key="key">
                 <ToggleSwitch :defaultValue="value" :text="toggleSwitchText(key)" @value-changed="newData.permissions[key] = $event" />
             </div>
 

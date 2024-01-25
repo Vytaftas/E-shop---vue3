@@ -26,11 +26,6 @@
                     >
                 </div>
 
-                <span class="meta-data">
-                    {{ product.meta_data?.colors }}
-                    {{ product.meta_data?.sizes }}
-                </span>
-
                 <p class="product-price-wrap" :class="{ discounted: product.discount_price }">
                     <span class="product-price">€{{ product.price }}</span>
                     <span class="product-price-discounted" v-if="product.discount_price">€{{ product.discount_price }}</span>
@@ -38,7 +33,13 @@
 
                 <p class="product-description" v-html="product.description"></p>
 
-                <div class="divider"></div>
+                <div class="meta-data" v-if="Object.keys(productMeta).length">
+                    <div class="divider"></div>
+                    <ProductMetaData :productMeta="productMeta" :selectedMeta="selectedMeta" />
+                    <div class="divider"></div>
+                </div>
+
+                <div class="divider" v-if="!Object.keys(productMeta).length"></div>
 
                 <div class="product-data">
                     <div v-if="product.expand.categories.length" class="product-categories">
@@ -62,14 +63,13 @@
                         @decreased="handleQuantityChange('-')"
                     />
 
-                    <AddToCartButton :product="product" :quantity="quantity" />
+                    <AddToCartButton :product="product" :quantity="quantity" :meta="selectedMeta" :isSingleProductPage="true" />
                 </div>
             </div>
         </div>
-        <div class="product-additional-info"></div>
+        <AdditionalInfo :product="product" v-if="product.long_description" />
 
         <RatingsAndReviews :resetReviewPage="resetReviewPage" @new-review="emit('new-review')" :product="product" :computedRating="computedRating" />
-
         <SimilarProducts class="similar-products" @product-change="handleProductChange" :product="SimilarProductsProduct" />
     </div>
 </template>
@@ -81,7 +81,9 @@ import AddToCartButton from './AddToCartButton.vue';
 import SimilarProducts from './SimilarProducts.vue';
 import RatingsAndReviews from './RatingsAndReviews.vue';
 import ProductRatingDecimal from './ProductRatingDecimal.vue';
-import { computed, onMounted, ref, watch } from 'vue';
+import AdditionalInfo from './AdditionalInfo.vue';
+import ProductMetaData from './ProductMetaData.vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 const quantity = ref(1);
 
@@ -91,6 +93,22 @@ const props = defineProps({
     computedRating: { default: null },
 });
 
+const productMeta = computed(() => {
+    if (!props.product?.expand?.product_meta) return {};
+
+    const availableMetaData = {};
+
+    for (let item of props.product.expand.product_meta) {
+        if (!availableMetaData[item.data_name]) {
+            availableMetaData[item.data_name] = { name: item.data_name, data: [] };
+            selectedMeta[item.data_name] = { ...item };
+        }
+        availableMetaData[item.data_name].data.push(item);
+    }
+
+    return availableMetaData;
+});
+
 const emit = defineEmits(['new-review']);
 
 const images = computed(() => [props.product.image, ...props.product.gallery_images]);
@@ -98,6 +116,8 @@ const currentImage = ref(0);
 const resetReviewPage = ref(false);
 
 const SimilarProductsProduct = ref({});
+
+const selectedMeta = reactive({});
 
 watch(
     () => props.product,
@@ -119,7 +139,6 @@ const handleQuantityChange = (val) => {
 const handleProductChange = () => {
     currentImage.value = 0;
     resetReviewPage.value = !resetReviewPage.value;
-    window.scrollTo(0, 0);
 };
 
 onMounted(async () => {});
@@ -209,7 +228,6 @@ onMounted(async () => {});
 }
 
 .single-category {
-    /* color: gray; */
     transition: 0.2s;
     text-decoration: underline;
     text-decoration-color: transparent;
@@ -240,4 +258,48 @@ onMounted(async () => {});
 .similar-products {
     margin-top: 25px;
 }
+
+/*  Meta */
+
+/* .meta-data {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.meta-options-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.meta-block-option-color {
+    width: 18px;
+    height: 18px;
+    border-radius: 100%;
+}
+
+.single-meta-block-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 10%);
+    padding: 5px 10px;
+    border-radius: 1em;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.single-meta-block-option.selected,
+.single-meta-block-option:hover {
+    background-color: rgb(255, 123, 0);
+    color: white;
+    cursor: pointer;
+}
+
+.meta-block-name {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+} */
 </style>

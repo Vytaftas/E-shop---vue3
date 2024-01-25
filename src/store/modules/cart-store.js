@@ -1,5 +1,3 @@
-// import { PocketBaseDB } from '../../pocketbase/pocketbase';
-
 const state = {
     cart: [],
     cartLoading: false,
@@ -12,12 +10,10 @@ const getters = {
 };
 
 const actions = {
-    async getCartItems({ commit, dispatch }, cartId) {
+    async getCartItems({ commit }, cartId) {
         try {
             commit('SET_CART_LOADING', true);
             const cartItems = await this.$db_api.getCartItems(cartId);
-
-            console.log(cartItems);
 
             commit('SET_CART_ITEMS', cartItems);
         } catch (error) {
@@ -27,43 +23,27 @@ const actions = {
         }
     },
 
-    async addToCart({ commit, dispatch }, data) {
+    async addToCart({}, data) {
         try {
-            const addedItem = await this.$db_api.addToCart(data);
-            console.log(addedItem);
+            await this.$db_api.addToCart(data);
         } catch (error) {
             console.log(error);
         }
     },
 
-    async removeFromCart({ commit, dispatch }, id) {
+    async removeFromCart({}, id) {
         try {
-            const removedItem = await this.$db_api.removeFromCart(id);
-            console.log(removedItem);
+            await this.$db_api.removeFromCart(id);
         } catch (error) {
             console.log(error);
         }
     },
 
-    async adjustProductQuantity({ commit, dispatch }, data) {
+    async adjustProductQuantity({}, data) {
         try {
-            const cartItems = await this.$db_api.adjustProductQuantity(data);
-
-            console.log(cartItems);
-
-            // commit('SET_CART_ITEMS', cartItems);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            await this.$db_api.adjustProductQuantity(data);
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
 };

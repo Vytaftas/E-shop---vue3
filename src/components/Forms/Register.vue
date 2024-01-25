@@ -41,8 +41,9 @@ const passwordConfirm = ref('');
 const userRegister = () => {
     try {
         store.dispatch('register', { email: email.value, password: password.value, passwordConfirm: passwordConfirm.value });
-    } catch (error) {}
-    console.log('login');
+    } catch (error) {
+        console.log(error);
+    }
 };
 </script>
 
@@ -120,9 +121,5 @@ p {
     font-size: 20px;
     font-weight: 500;
     padding: 10px 0;
-}
-
-.footer-action {
-    text-align: center;
 }
 </style>

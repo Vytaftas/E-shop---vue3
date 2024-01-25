@@ -51,7 +51,6 @@ import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import ProductsList from '../components/Products/ProductsList.vue';
 import ImageSlider from '../components/ImageSlider.vue';
-import AvailableCategories from '../components/AvailableCategories.vue';
 import bg1 from '../assets/hero/sneakers1.png';
 import bg2 from '../assets/hero/sneakers2.png';
 import bg3 from '../assets/hero/sneakers3.png';
@@ -68,8 +67,6 @@ const showDescription = computed(() => (view.value === 'cards' ? false : true));
 const newProducts = ref([]);
 const productsLoading = ref(false);
 
-// const changeView = (value) => (view.value = value);
-
 const sliderData = [
     { text: 'Desino Alma', additionalText: 'Hello how are you?', backgroundImage: bg3 },
     { text: 'Hello', additionalText: 'Lorem ipsum dolor.', backgroundImage: bg1, button: { text: 'Shop Now', link: '/shop' } },
@@ -80,7 +77,6 @@ onMounted(async () => {
     try {
         productsLoading.value = true;
         const products = await store.dispatch('getProducts', { amount: 8, filterData: { sort: '-created' }, returnData: true });
-        console.log(products.items[0].expand);
         newProducts.value = products.items;
     } catch (error) {
         console.log(error);

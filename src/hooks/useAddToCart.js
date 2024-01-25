@@ -6,7 +6,7 @@ export default function useAddToCart() {
     const loadingStates = reactive({});
     const isAnyLoading = ref(false);
 
-    async function addToCart(item, quantity = 1) {
+    async function addToCart(item, quantity = 1, meta) {
         const itemId = item.id;
         if (!loadingStates[itemId]) {
             loadingStates[itemId] = false;
@@ -24,7 +24,9 @@ export default function useAddToCart() {
             const product_id = itemId;
             const cart_id = currentUser.cart_id;
 
-            const data = { product_id, cart_id, quantity };
+            if (Object.keys(meta)) meta = Object.keys(meta).map((key) => meta[key].id);
+
+            const data = { product_id, cart_id, quantity, meta };
 
             await store.dispatch('addToCart', data);
             await store.dispatch('getCartItems', cart_id);

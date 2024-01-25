@@ -6,7 +6,6 @@ export const DB_API = (store) =>
             try {
                 const authData = await PocketBaseDB.collection('users').authWithPassword(username, password);
 
-                console.log(authData.record);
                 return authData.record;
             } catch (error) {
                 throw error;
@@ -38,7 +37,6 @@ export const DB_API = (store) =>
 
         logout() {
             try {
-                console.log('logout in db-api');
                 PocketBaseDB.authStore.clear();
             } catch (error) {
                 console.log(error);
@@ -49,16 +47,19 @@ export const DB_API = (store) =>
         async getProducts({ page = 1, amount = 12, filterData, getAvailableCategories = false, categoryName }) {
             try {
                 if (getAvailableCategories) {
-                    const categories = await this.getAvailableCategories({ filter: `name ~ '${categoryName}'` });
+                    const categories = await this.getAvailableCategories({ filter: `link = '${categoryName}'` });
 
-                    filterData.filter
-                        ? (filterData.filter += ` && categories ~ '${categories[0].id}'`)
-                        : (filterData.filter = `categories ~ '${categories[0].id}'`);
+                    if (filterData?.filter) {
+                        filterData.filter = `(${filterData.filter})`;
+                        filterData.filter += ` && categories ~ '${categories[0].id}'`;
+                    } else {
+                        filterData = { filter: `categories ~ '${categories[0].id}'` };
+                    }
                 }
 
                 const productsData = await PocketBaseDB.collection('products').getList(page, amount, {
                     ...filterData,
-                    expand: 'product_ratings(product_id).user_id, categories, rating_id',
+                    expand: 'product_ratings(product_id).user_id, categories, rating_id, product_meta',
                     sort: '-created',
                 });
 
@@ -66,7 +67,7 @@ export const DB_API = (store) =>
 
                 return { items, paginationData };
             } catch (error) {
-                console.log(error);
+                console.log(error.response);
             }
         },
         async getAllUsers({ page = 1, amount = 12 }) {
@@ -92,7 +93,6 @@ export const DB_API = (store) =>
         },
 
         async addProduct(data) {
-            console.log(data);
             try {
                 return await PocketBaseDB.collection('products').create(data);
             } catch (error) {
@@ -167,14 +167,36 @@ export const DB_API = (store) =>
             }
         },
 
+        async addMetaData(data) {
+            try {
+                return await PocketBaseDB.collection('meta_data').create(data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+        async updateMetaData({ metaId, metaData }) {
+            try {
+                return await PocketBaseDB.collection('meta_data').update(metaId, metaData);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        async deleteMetaData(id) {
+            try {
+                return await PocketBaseDB.collection('meta_data').delete(id);
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
         async getProduct(id) {
             try {
-                const product = await PocketBaseDB.collection('products').getOne(id, { expand: 'product_ratings(product_id).user_id, categories' });
-                console.log(product);
-                return product;
+                return await PocketBaseDB.collection('products').getOne(id, {
+                    expand: 'product_ratings(product_id).user_id, categories, product_meta',
+                });
             } catch (error) {
                 throw error;
-                // error.response
             }
         },
 
@@ -185,19 +207,17 @@ export const DB_API = (store) =>
                     filter: `product_id = '${productId}'`,
                 });
             } catch (error) {
-                throw error;
-                // error.response
+                throw error.response;
             }
         },
 
         async getCartItems(cartId) {
             try {
-                const items = await PocketBaseDB.collection('cart_items').getFullList({
+                return await PocketBaseDB.collection('cart_items').getFullList({
                     filter: `cart_id = '${cartId}'`,
-                    expand: 'product_id, product_id.categories',
+                    expand: 'product_id, product_id.categories, meta',
+                    sort: '-created',
                 });
-
-                return items;
             } catch (error) {
                 console.log(error);
             }
@@ -211,16 +231,28 @@ export const DB_API = (store) =>
             }
         },
 
-        async addToCart({ product_id, cart_id, quantity }) {
+        async addToCart({ product_id, cart_id, quantity, meta }) {
+            let metaIds = '';
+
+            meta.forEach((item, index) => {
+                metaIds += `meta ~ '${item}'`;
+                if (index !== meta.length - 1) metaIds += ' && ';
+            });
+
+            let cartItemsFilter = `product_id = '${product_id}' && cart_id = '${cart_id}'`;
+
+            metaIds ? (cartItemsFilter += ` && ${metaIds}`) : (cartItemsFilter += ` && meta = '[]'`);
+
             try {
                 const isInCart = await PocketBaseDB.collection('cart_items').getFullList({
-                    filter: `product_id = '${product_id}' && cart_id = '${cart_id}'`,
+                    expand: 'meta',
+                    filter: cartItemsFilter,
                 });
 
                 if (isInCart.length) {
                     return await this.adjustProductQuantity({ cartItemId: isInCart[0].id, quantity: isInCart[0].quantity + quantity });
                 } else {
-                    return await PocketBaseDB.collection('cart_items').create({ product_id, cart_id, quantity });
+                    return await PocketBaseDB.collection('cart_items').create({ product_id, cart_id, quantity, meta });
                 }
             } catch (error) {
                 console.log(error);

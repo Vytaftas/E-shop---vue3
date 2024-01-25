@@ -3,16 +3,12 @@
         <PathLinks class="path-links" />
         <div class="divider"></div>
         <div class="categories-wrap-content">
-            <Filter :products="products" @filter-change="emit('filter-change', $event)" />
+            <Filter :categoryName="categoryName" @filter-change="emit('filter-change', $event)" />
             <div class="categories-content">
                 <ProductsList v-if="!loading" :products="products" :columns="columns" />
                 <ProductsListSkeleton v-else :skeletonAmount="productsAmount" :columns="columns" />
                 <Pagination :paginationData="paginationData" @page-change="emit('page-change', $event)" />
             </div>
-        </div>
-        <div v-if="!products.length && !loading" class="message container">
-            <p>No products found.</p>
-            <router-link to="/shop" class="link">Back to Shop</router-link>
         </div>
     </div>
 </template>
@@ -30,6 +26,7 @@ const props = defineProps({
     productsAmount: { default: 9 },
     loading: { default: false },
     paginationData: { default: null },
+    categoryName: { default: '' },
 });
 
 const emit = defineEmits(['filter-change', 'page-change']);

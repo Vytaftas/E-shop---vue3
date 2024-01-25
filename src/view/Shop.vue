@@ -30,7 +30,6 @@ const currentFilters = ref('');
 const currentPage = ref(1);
 
 const getProducts = async (filterData, page = currentPage.value) => {
-    console.log(filterData);
     try {
         productsLoading.value = true;
         const response = await store.dispatch('getProducts', {

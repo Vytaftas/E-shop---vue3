@@ -167,8 +167,6 @@ const handleDuplicateProduct = async (product) => {
 
     const data = new FormData();
 
-    console.log(data);
-
     for (const key of Object.keys(productData)) {
         if (key === 'categories') {
             for (let cat of productData[key]) {
@@ -389,12 +387,6 @@ onMounted(async () => {
     font-size: 30px;
     color: #0050e6;
     transition: 0.2s;
-}
-
-.select-wrap {
-    position: relative;
-    width: fit-content;
-    cursor: pointer;
 }
 
 #products-select {

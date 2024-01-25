@@ -55,7 +55,6 @@ const currentRating = computed(() => (hovering.value ? hoverIndex.value : defaul
 
 <style scoped>
 .star-rating {
-    /* font-size: 24px; */
     line-height: 1em;
 }
 

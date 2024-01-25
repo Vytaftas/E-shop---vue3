@@ -95,7 +95,6 @@ const singleGalleryImage = (image) => {
         return { backgroundImage: `url('${URL.createObjectURL(image)}')` };
     }
 
-    console.log(typeof image);
     const imageInDB = props.product.gallery_images.indexOf(image);
 
     if (imageInDB === -1) {
@@ -109,8 +108,6 @@ const handleImageChange = (e, type) => {
     const file = e.target.files[0];
 
     if (!file) return resetImage(type);
-
-    console.log(file);
 
     const reader = new FileReader();
     reader.onload = (e) => {

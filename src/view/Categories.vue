@@ -24,7 +24,6 @@ onMounted(async () => {
     try {
         categoriesLoading.value = true;
         const response = await store.dispatch('getAvailableCategories');
-        console.log(response);
         categories.value = response;
     } catch (error) {
         console.log(error);

@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
     paginationData: { default: undefined },
@@ -24,10 +24,7 @@ const currentPage = computed(() => props.paginationData.page);
 
 const emit = defineEmits(['page-change']);
 
-const handlePageChange = (page) => {
-    // if (page === currentPage.value) return;
-    emit('page-change', page);
-};
+const handlePageChange = (page) => emit('page-change', page);
 </script>
 
 <style scoped>

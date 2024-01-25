@@ -111,16 +111,13 @@ const userImage = (id, imageUrl) => {
 };
 
 watch(users, (value) => {
-    console.log(value);
     if (value) newUsers.value = JSON.parse(JSON.stringify(value));
 });
 
 const handleImageChange = (e, index) => {
     const file = e.target.files[0];
 
-    console.log(index);
-
-    if (!file) return (newUsers.value[index].avatar = ''); // set to no img
+    if (!file) return (newUsers.value[index].avatar = '');
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -160,23 +157,16 @@ const addNewUser = () => {
 const saveUser = async (userId, index) => {
     const userData = new FormData();
 
-    console.log(newUsers.value[0]);
-
     const keysToUpdate = ['avatar', 'name', 'username', 'email'];
-    const ff = {};
 
     Object.keys(newUsers.value[index]).forEach((key) => {
         if (keysToUpdate.includes(key)) {
             userData.append(key, newUsers.value[index][key]);
-            ff[key] = newUsers.value[index][key];
         }
     });
 
-    console.log(ff);
-
     try {
         usersSaving[index] = true;
-        console.log(newUsers.value[index]);
         if (newUsers.value[index].new) {
             delete newUsers.value[index].expand.permissions_id.isNew;
 

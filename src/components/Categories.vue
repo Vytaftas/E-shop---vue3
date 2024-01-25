@@ -24,7 +24,7 @@ const props = defineProps({ categories: { default: [] } });
     display: grid;
     min-height: 70vh;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px; /* Adjust the gap as per your design */
+    gap: 10px;
 }
 
 .single-category {
@@ -82,14 +82,3 @@ const props = defineProps({ categories: { default: [] } });
     transition: transform 0.2s, color 0.5s;
 }
 </style>
-
-<!-- {
-    "collectionId": "8ncziq52e66ih1d",
-    "collectionName": "available_categories",
-    "created": "2023-12-27 10:23:53.425Z",
-    "id": "qbmllnjty9l44wv",
-    "image": "11_1_kazuP5yxTg.jpg",
-    "link": "sneakers",
-    "name": "Sneakers",
-    "updated": "2023-12-27 10:45:49.259Z"
-}, -->

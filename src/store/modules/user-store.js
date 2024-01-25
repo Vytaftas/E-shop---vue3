@@ -8,23 +8,11 @@ const getters = {
 const collectionName = 'users';
 
 const actions = {
-    async getAllUsers({ commit, dispatch }, data) {
+    async getAllUsers({}, data) {
         try {
             return await this.$db_api.getAllUsers(data);
-
-            // console.log(products);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
 
@@ -37,7 +25,6 @@ const actions = {
                 type: 'success',
             });
         } catch (error) {
-            console.log(error.response);
             dispatch('addNotification', {
                 message: 'Failed to add user',
                 type: 'error',
@@ -53,7 +40,6 @@ const actions = {
                 type: 'success',
             });
         } catch (error) {
-            console.log(error.response);
             dispatch('addNotification', {
                 message: 'Failed to update user',
                 type: 'error',
@@ -82,17 +68,17 @@ const actions = {
             const user = await this.$db_api.login(data);
             commit('ADD_CURRENT_USER', user);
 
-            // dispatch('addNotification', {
-            //     message: 'Prisijungta sėkmingai',
-            //     type: 'success',
-            // });
-        } catch (error) {
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko prisijungti',
-            //     type: 'error',
-            // });
+            dispatch('getCartItems', user.cart_id);
 
-            throw error;
+            dispatch('addNotification', {
+                message: 'Successfully Logged In',
+                type: 'success',
+            });
+        } catch (error) {
+            dispatch('addNotification', {
+                message: 'Failed to log in',
+                type: 'error',
+            });
         }
     },
 
@@ -102,57 +88,36 @@ const actions = {
 
             commit('ADD_CURRENT_USER', user);
 
-            // dispatch('addNotification', {
-            //     message: 'Prisijungta sėkmingai',
-            //     type: 'success',
-            // });
-        } catch (error) {
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko prisijungti',
-            //     type: 'error',
-            // });
-            // return error;
-            console.log(error);
-
-            throw error;
-        }
-    },
-
-    async logout({ dispatch, commit }) {
-        try {
-            await this.$db_api.logout();
-
-            commit('ADD_CURRENT_USER', null);
-            // dispatch('addNotification', {
-            //     message: 'Atsijungta sėkmingai',
-            //     type: 'success',
-            // });
-        } catch (error) {
-            console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavykto atsijungti',
-            //     type: 'error',
-            // });
-        }
-    },
-
-    async changeUserPassword({ dispatch }, data) {
-        try {
-            await this.$db_api.updateCollectionItem({ collectionName, id: data.id, data: data.data, refresh: true });
-
             dispatch('addNotification', {
-                message: 'Slaptažodis sėkmingai pakeistas',
+                message: 'Successfully Registered',
                 type: 'success',
             });
         } catch (error) {
             dispatch('addNotification', {
-                message: 'Nepavykto pakeisti slaptažodžio',
+                message: 'Error while trying to register',
                 type: 'error',
             });
-
-            throw new Error(error.message);
         }
     },
+
+    async logout({ commit }) {
+        try {
+            await this.$db_api.logout();
+
+            commit('ADD_CURRENT_USER', null);
+            commit('SET_CART_ITEMS', []);
+            dispatch('addNotification', {
+                message: 'Logged out successfully',
+                type: 'success',
+            });
+        } catch (error) {
+            dispatch('addNotification', {
+                message: 'Error while trying to log out',
+                type: 'error',
+            });
+        }
+    },
+
     async updatePermissions({ dispatch }, data) {
         try {
             await this.$db_api.updatePermissions(data);

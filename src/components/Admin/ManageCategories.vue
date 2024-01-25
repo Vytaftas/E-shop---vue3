@@ -1,7 +1,4 @@
 <template>
-    <!-- <pre>
-        {{ newCategories[newCategories.length - 1] }}
-    </pre> -->
     <div class="manage-categories-wrapper">
         <LoadingOverlay v-if="categoriesLoading" background="transparent" color="black" />
         <div class="manage-categories">
@@ -23,8 +20,6 @@
 
                 <div class="categories-wrap">
                     <div class="single-category" v-for="(category, index) of newCategories" :key="category.id">
-                        <!-- {{ index }}
-                        {{ 'category-image' + index }} -->
                         <div class="category-image-block">
                             <label :for="'category-image' + index" class="category-image-label">
                                 <div class="category-image centered-background" :style="categoryImage(category.id, category.image)">
@@ -101,8 +96,6 @@ watch(categories, (value) => {
 
 const handleImageChange = (e, index) => {
     const file = e.target.files[0];
-
-    console.log(index);
 
     if (!file) return (newCategories.value[index].image = ''); // set to no img
 

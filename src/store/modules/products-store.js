@@ -17,7 +17,7 @@ const getters = {
 };
 
 const actions = {
-    async getProducts({ commit, dispatch }, data) {
+    async getProducts({ commit }, data) {
         try {
             const products = await this.$db_api.getProducts(data);
 
@@ -27,85 +27,84 @@ const actions = {
                 commit('SET_PRODUCTS', products.items);
                 commit('SET_PAGINATION_DATA', products.paginationData);
             }
-
-            // console.log(products);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
 
-    async getAvailableCategories({ commit, dispatch }) {
+    async getAvailableCategories({}) {
         try {
-            const categories = await this.$db_api.getAvailableCategories();
-
-            return categories;
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            return await this.$db_api.getAvailableCategories();
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
 
-    async getAllMetaData({ commit, dispatch }) {
+    async getAllMetaData({}) {
         try {
             return await this.$db_api.getAllMetaData();
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
+        }
+    },
+    async addMetaData({ dispatch }, data) {
+        try {
+            await this.$db_api.addMetaData(data);
+
+            dispatch('addNotification', {
+                message: 'Meta data added successfully',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            dispatch('addNotification', {
+                message: 'Failed to add meta data',
+                type: 'error',
+            });
+        }
+    },
+    async updateMetaData({ dispatch }, data) {
+        try {
+            await this.$db_api.updateMetaData(data);
+
+            dispatch('addNotification', {
+                message: 'Meta data updated successfully',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            dispatch('addNotification', {
+                message: 'Failed to update meta data',
+                type: 'error',
+            });
+        }
+    },
+    async deleteMetaData({ dispatch }, id) {
+        try {
+            await this.$db_api.deleteMetaData(id);
+
+            dispatch('addNotification', {
+                message: 'Meta data deleted successfully',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            dispatch('addNotification', {
+                message: 'Failed to deleta meta data',
+                type: 'error',
+            });
         }
     },
 
     async getProduct({ commit, dispatch }, id) {
         try {
-            const product = await this.$db_api.getProduct(id);
-
-            return product;
-
-            // commit('SET_PRODUCTS', products.items);
-            // commit('SET_PAGINATION_DATA', products.paginationData);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            return await this.$db_api.getProduct(id);
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
 
-    async addProduct({ commit, dispatch }, data) {
+    async addProduct({ dispatch }, data) {
         try {
             await this.$db_api.addProduct(data);
 
@@ -121,7 +120,7 @@ const actions = {
         }
     },
 
-    async updateProduct({ commit, dispatch }, data) {
+    async updateProduct({ dispatch }, data) {
         try {
             await this.$db_api.updateProduct(data);
 
@@ -130,7 +129,6 @@ const actions = {
                 type: 'success',
             });
         } catch (error) {
-            console.log(error.response);
             dispatch('addNotification', {
                 message: 'Error while trying to update product',
                 type: 'error',
@@ -138,30 +136,15 @@ const actions = {
         }
     },
 
-    async getProductRatings({ commit, dispatch }, data) {
+    async getProductRatings({}, data) {
         try {
-            const ratings = await this.$db_api.getProductRatings(data);
-
-            return ratings;
-
-            // commit('SET_PRODUCTS', products.items);
-            // commit('SET_PAGINATION_DATA', products.paginationData);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            return await this.$db_api.getProductRatings(data);
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
 
-    async deleteProduct({ commit, dispatch }, id) {
+    async deleteProduct({ dispatch }, id) {
         try {
             await this.$db_api.deleteProduct(id);
 
@@ -177,70 +160,25 @@ const actions = {
         }
     },
 
-    async addReview({ commit, dispatch }, data) {
+    async addReview({}, data) {
         try {
-            const review = await this.$db_api.addReview(data);
-
-            return review;
-
-            // commit('SET_PRODUCTS', products.items);
-            // commit('SET_PAGINATION_DATA', products.paginationData);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            return await this.$db_api.addReview(data);
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
-    async updateReview({ commit, dispatch }, data) {
+    async updateReview({}, data) {
         try {
-            const review = await this.$db_api.updateReview(data);
-
-            return review;
-
-            // commit('SET_PRODUCTS', products.items);
-            // commit('SET_PAGINATION_DATA', products.paginationData);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            return await this.$db_api.updateReview(data);
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
-    async deleteReview({ commit, dispatch }, id) {
+    async deleteReview({}, id) {
         try {
-            const review = await this.$db_api.deleteReview(id);
-
-            return review;
-
-            // commit('SET_PRODUCTS', products.items);
-            // commit('SET_PAGINATION_DATA', products.paginationData);
-
-            // dispatch('addNotification', {
-            //     message: 'Vartotojas sėkmingai atnaujintas',
-            //     type: 'success',
-            // });
+            return await this.$db_api.deleteReview(id);
         } catch (error) {
             console.log(error);
-            // console.log(error);
-            // dispatch('addNotification', {
-            //     message: 'Nepavyko atnaujinti vartotojo',
-            //     type: 'error',
-            // });
         }
     },
     async addCategory({ dispatch }, data) {
@@ -252,8 +190,6 @@ const actions = {
                 type: 'success',
             });
         } catch (error) {
-            console.log(error);
-            // console.log(error);
             dispatch('addNotification', {
                 message: 'Failed to add category',
                 type: 'error',
@@ -269,8 +205,6 @@ const actions = {
                 type: 'success',
             });
         } catch (error) {
-            console.log(error);
-            // console.log(error);
             dispatch('addNotification', {
                 message: 'Failed to update category',
                 type: 'error',

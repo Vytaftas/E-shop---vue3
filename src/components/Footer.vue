@@ -4,7 +4,6 @@
         <div class="footer-content container">
             <div class="column logo">
                 <img :src="SiteLogo" alt="" class="site-logo" />
-                <!-- <span class="site-logo column-heading">Logoipsum</span> -->
                 <span class="site-description"
                     >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ut elit rhoncus, lacinia mauris porttitor, tempus leo. Curabitur
                     in porta sem. Aliquam scelerisque, orci a aliquet feugiat, tortor neque posuere nibh, ac finibus neque dolor sed lectus.</span

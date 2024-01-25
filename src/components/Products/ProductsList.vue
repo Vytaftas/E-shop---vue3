@@ -25,6 +25,14 @@
                     productKey(product).name
                 }}</router-link>
 
+                <div class="meta-wrap" v-if="isCart">
+                    <div class="single-meta" v-for="(metaItem, index) of product.expand.meta" :key="metaItem.id">
+                        <span class="meta-block-name">{{ metaItem.data_name }}:</span>
+                        <div class="meta-color" v-if="isValidHexCode(metaItem.value)" :style="{ backgroundColor: metaItem.value }"></div>
+                        <span class="meta-name">{{ metaItem.name }}</span>
+                    </div>
+                </div>
+
                 <ProductRatingDecimal v-if="showRatings" :rating="getProductRating(productKey(product))?.rating" size="24px" />
 
                 <span v-if="showDescription" class="product-description">{{ productKey(product).description }}</span>
@@ -41,7 +49,10 @@
             <i v-if="showRemoveButton" class="fa-solid fa-trash remove-item" @click="handleRemoveFromCart(product)"></i>
         </div>
     </div>
-    <p v-if="!products.length && !isCart" :style="{ textAlign: 'center' }">No products found.</p>
+    <div v-if="!products.length && !isCart" class="message container">
+        <p>No products found.</p>
+        <router-link to="/shop" class="link">Back to Shop</router-link>
+    </div>
     <p v-if="!products.length && isCart">Cart is empty.</p>
 </template>
 
@@ -52,6 +63,7 @@ import QuantityButtons from './QuantityButtons.vue';
 import AddToCartButton from './AddToCartButton.vue';
 import ProductRatingDecimal from './ProductRatingDecimal.vue';
 import getProductRating from '../../helpers/getProductRating';
+import isValidHexCode from '../../helpers/isValidHexCode';
 
 const props = defineProps({
     showDescription: { default: false },
@@ -200,5 +212,37 @@ const handleRemoveFromCart = async (item) => {
 .remove-item:hover {
     color: black;
     color: rgba(212, 0, 0, 0.856);
+}
+
+.meta-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.single-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    opacity: 0.8;
+    line-height: 1em;
+}
+
+.meta-block-name {
+    font-weight: 500;
+}
+
+.meta-color {
+    height: 12px;
+    width: 12px;
+    border-radius: 100%;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 </style>

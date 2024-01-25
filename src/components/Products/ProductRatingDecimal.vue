@@ -12,7 +12,7 @@ const props = defineProps({ rating: { default: null }, size: { default: '30px' }
 
 const getStarStyle = (starIndex) => {
     if (starIndex <= Math.floor(props.rating)) {
-        return { color: '#ff9b00' }; // Full star
+        return { color: '#ff9b00' };
     } else if (starIndex - 1 < props.rating) {
         const decimalPart = props.rating % 1;
         const percentage = decimalPart * 100;
@@ -23,7 +23,7 @@ const getStarStyle = (starIndex) => {
             color: 'transparent',
         };
     }
-    return { color: '#6b6b6b' }; // Empty star
+    return { color: '#6b6b6b' };
 };
 </script>
 

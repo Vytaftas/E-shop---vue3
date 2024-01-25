@@ -6,8 +6,7 @@
             </h3>
             <button class="product-update-button button-main" @click="handleProductUpdate">Update</button>
         </div>
-        <!-- /// change form -->
-        <form class="main-product-form">
+        <div class="main-product-form">
             <div class="top">
                 <div class="left-side">
                     <div class="section-wrap product-data-wrap">
@@ -26,7 +25,7 @@
 
                     <div class="section-wrap product-meta-wrap">
                         <h4 class="section-heading">Product Meta</h4>
-                        <EditMeta :meta="productData.meta_data" :product="product" @meta-change="productData.meta_data['value'] = $event" />
+                        <EditMeta :meta="productData.product_meta.value" :product="product" @meta-change="productData.product_meta.value = $event" />
                     </div>
                 </div>
                 <div class="right-side">
@@ -62,13 +61,13 @@
                     />
                 </div>
             </div>
-        </form>
+        </div>
     </div>
-    <LoadingOverlay v-if="productLoading" />
+    <LoadingOverlay class="overlay" v-if="productLoading" />
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -106,6 +105,7 @@ const productData = reactive({
     categories: { value: [], changed: false },
     product_ratings: { value: [], changed: false },
     meta_data: { value: [], error: false },
+    product_meta: { value: [], error: false },
 });
 
 const handleProductUpdate = async () => {
@@ -154,10 +154,18 @@ const handleProductUpdate = async () => {
             continue;
         }
 
+        if (key === 'product_meta') {
+            for (let metaKey of Object.keys(productData[key].value)) {
+                productData[key].value[metaKey].data.forEach((item) => data.append(key, item.id));
+            }
+            continue;
+        }
+
         data.append(key, productData[key].value);
     }
 
     try {
+        productLoading.value = true;
         if (props.addNew) {
             await store.dispatch('addProduct', data);
             router.push('/dashboard/manage-products');
@@ -167,6 +175,8 @@ const handleProductUpdate = async () => {
         }
     } catch (error) {
         console.log(error);
+    } finally {
+        productLoading.value = false;
     }
 };
 
@@ -186,15 +196,25 @@ const getProduct = async () => {
         const responseCopy = JSON.parse(JSON.stringify(response));
 
         for (let key in responseCopy) {
-            if (responseCopy[key].categories || responseCopy[key]['product_ratings(product_id)']) {
+            if (responseCopy[key].categories || responseCopy[key]['product_ratings(product_id)'] || responseCopy[key].product_meta) {
                 if (productData.categories) productData.categories.value = responseCopy[key].categories;
                 if (productData.product_ratings) {
                     if (responseCopy[key]['product_ratings(product_id)'])
                         responseCopy[key]['product_ratings(product_id)'].sort((item1, item2) => new Date(item2.created) - new Date(item1.created));
                     productData.product_ratings.value = responseCopy[key]['product_ratings(product_id)'];
                 }
+                if (responseCopy[key].product_meta) {
+                    const metaObj = {};
+
+                    for (let item of responseCopy[key].product_meta) {
+                        if (!metaObj[item.data_name]) metaObj[item.data_name] = { name: item.data_name, data: [] };
+                        metaObj[item.data_name].data.push(item);
+                    }
+
+                    productData.product_meta.value = metaObj;
+                }
             } else {
-                if (productData.hasOwnProperty(key) && key !== 'categories') {
+                if (productData.hasOwnProperty(key) && key !== 'categories' && key !== 'product_meta') {
                     productData[key].value = responseCopy[key];
                 }
             }
@@ -209,13 +229,10 @@ const getProduct = async () => {
 onMounted(async () => {
     if (!props.addNew) await getProduct();
     try {
-        // productLoading.value = true;
         const response = await store.dispatch('getAvailableCategories');
         availableCategories.value = response;
     } catch (error) {
         console.log(error);
-    } finally {
-        // productLoading.value = false;
     }
 });
 </script>
@@ -286,5 +303,11 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 25px;
+}
+
+.overlay {
+    width: calc(100% - 250px);
+    right: 0;
+    left: unset;
 }
 </style>

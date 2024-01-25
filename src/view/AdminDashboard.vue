@@ -65,7 +65,7 @@ const handleLogout = async () => {
 
 .dashboard {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 250px 1fr;
     height: 100vh;
 }
 .sidebar {

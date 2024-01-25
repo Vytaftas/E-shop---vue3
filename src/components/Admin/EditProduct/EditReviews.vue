@@ -128,7 +128,7 @@ const handleRatingUpdate = async (ratingId, data) => {
         }
     }
 
-    if (!Object.keys(newData).length) return console.log('nothing changed'); // NOTHING CHANGED
+    if (!Object.keys(newData).length) return;
 
     if (!ratingButtonLoadingStates[ratingId]) {
         ratingButtonLoadingStates[ratingId] = false;

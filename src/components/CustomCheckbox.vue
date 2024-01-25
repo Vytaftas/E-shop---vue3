@@ -1,18 +1,16 @@
 <template>
     <label class="custom-checkbox">
-        <input type="checkbox" :checked="isChecked" @click.stop />
+        <input type="checkbox" :checked="checked" :class="{ checked: checked }" @click.stop />
         <span class="checkmark"></span>
-        <!-- Custom content will be inserted here -->
         <slot :item="item"></slot>
     </label>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
-const props = defineProps(['item', 'checked']);
-
-const isChecked = computed(() => props.checked);
+const props = defineProps({
+    item: { default: null },
+    checked: { default: false },
+});
 </script>
 
 <style scoped>
@@ -41,7 +39,7 @@ const isChecked = computed(() => props.checked);
     border-radius: 3px;
 }
 
-.custom-checkbox input:checked ~ .checkmark {
+.custom-checkbox input.checked ~ .checkmark {
     background-color: rgb(255, 123, 0);
     border-color: rgb(255, 123, 0);
 }
@@ -52,7 +50,7 @@ const isChecked = computed(() => props.checked);
     display: none;
 }
 
-.custom-checkbox input:checked ~ .checkmark:after {
+.custom-checkbox input.checked ~ .checkmark:after {
     display: block;
 }
 
