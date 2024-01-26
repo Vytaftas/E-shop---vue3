@@ -4,7 +4,7 @@ import { useStore } from 'vuex';
 export default () => {
     const store = useStore();
 
-    const cartItems = computed(() => store.getters.cartData);
+    const cartItems = computed(() => store.getters.cartData.filter((cartItem) => cartItem.product_id));
     const cartLoading = computed(() => store.getters.cartLoading);
 
     const cartTotals = computed(() => {

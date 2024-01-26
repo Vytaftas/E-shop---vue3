@@ -17,6 +17,8 @@ import ManageUsers from '../components/Admin/ManageUsers.vue';
 import Dashboard from '../components/Admin/Dashboard.vue';
 import EditProduct from '../components/Admin/EditProduct/EditProduct.vue';
 
+import store from '../store/index';
+
 const routes = [
     {
         path: '/dashboard',
@@ -26,11 +28,15 @@ const routes = [
             { name: 'Dashboard', path: '', component: Dashboard },
             { name: 'Manage Products', path: 'manage-products', component: ManageProducts },
             { name: 'Manage Products Metadata', path: 'manage-metadata', component: ManageMeta },
-            { name: 'Edit Product', path: 'manage-products/:id', component: EditProduct },
+            { name: 'Edit Product', path: 'manage-products/:id', component: EditProduct, meta: { permission: 'edit_products' } },
             { name: 'Add Product', path: 'manage-products/add-new', component: EditProduct, props: { addNew: true } },
             { name: 'Manage Categories', path: 'manage-categories', component: ManageCategories },
             { name: 'Manage Users', path: 'manage-users', component: ManageUsers },
         ],
+        meta: {
+            requiresAuth: true,
+            requiresAdmin: true,
+        },
     },
     {
         path: '/',

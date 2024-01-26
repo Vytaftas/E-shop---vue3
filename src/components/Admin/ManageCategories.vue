@@ -3,7 +3,11 @@
         <LoadingOverlay v-if="categoriesLoading" background="transparent" color="black" />
         <div class="manage-categories">
             <h3 class="heading">Manage Categories</h3>
-            <div class="add-new-wrap" @click="addNewCategory">
+            <div
+                class="add-new-wrap"
+                @click="currentUser.expand.permissions_id.add_categories ? addNewCategory : addNotification('Permission denied', 'error')"
+            >
+                /// ENDED HERE, everything works
                 <i class="fa-solid fa-square-plus"></i>
                 <span>Add New</span>
             </div>
@@ -48,10 +52,16 @@
                         </div>
 
                         <div class="category-actions-wrap">
-                            <button class="button-main save-button" @click="saveCategory(category.id, index)">
+                            <button
+                                class="button-main save-button"
+                                @click="checkPermissions(() => saveCategory(category.id, index), 'edit_categories')"
+                            >
                                 {{ categoriesSaving[index] ? 'Saving..' : 'Save' }}
                             </button>
-                            <button class="button-main delete-button" @click="deleteCategory(category.id, index)">
+                            <button
+                                class="button-main delete-button"
+                                @click="checkPermissions(() => deleteCategory(category.id, index), 'delete_categories')"
+                            >
                                 {{ categoriesDeleting[index] ? 'Deleting..' : 'Delete' }}
                             </button>
                         </div>
@@ -63,12 +73,21 @@
 </template>
 
 <script setup>
-import NoImage from '../../assets/no-image.png';
-import { onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import NoImage from '../../assets/no-image.png';
 import LoadingOverlay from '../LoadingOverlay.vue';
+import addNotification from '../../helpers/addNotification';
 
 const store = useStore();
+
+const currentUser = computed(() => store.getters.currentUser);
+
+const checkPermissions = (func, permission) => {
+    if (currentUser.value?.expand?.permissions_id[permission]) return func();
+
+    addNotification('Permission denied', 'error');
+};
 
 const categories = ref(null);
 

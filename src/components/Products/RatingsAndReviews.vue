@@ -7,7 +7,7 @@
                 <StarRating :rating="rating.star_rating" />
                 <p class="rating-heading">{{ rating.rating_heading }}</p>
                 <p class="rating-text">{{ rating.rating_text }}</p>
-                <span class="rating-date">{{ rating.expand.user_id.name }}, {{ formattedDate(rating.created) }}</span>
+                <span class="rating-date">{{ rating.expand.user_id.name }}, {{ formatDate(rating.created) }}</span>
             </div>
 
             <Pagination :paginationData="paginationData()" @page-change="(page) => (currentPage = page)" />
@@ -23,11 +23,12 @@
 </template>
 
 <script setup>
-import StarRating from './StarRating.vue';
-import ProductRatingForm from '../Forms/ProductRatingForm.vue';
 import { useStore } from 'vuex';
 import { computed, ref, watch } from 'vue';
+import StarRating from './StarRating.vue';
+import ProductRatingForm from '../Forms/ProductRatingForm.vue';
 import Pagination from '../Misc/Pagination.vue';
+import formatDate from '../../helpers/formatDate';
 
 const store = useStore();
 
@@ -70,11 +71,6 @@ watch(
 );
 
 const emit = defineEmits(['new-review']);
-
-const formattedDate = (originalDate) => {
-    const date = new Date(originalDate);
-    return `${date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`;
-};
 </script>
 
 <style scoped>
@@ -98,7 +94,6 @@ h3 {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    /* border-bottom: 1px solid rgba(0, 0, 0, 0.089); */
     padding: 30px 0;
 }
 

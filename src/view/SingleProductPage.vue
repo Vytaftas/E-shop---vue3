@@ -35,14 +35,12 @@ const productLoading = ref(true);
 const computedRating = computed(() => getProductRating(product.value));
 
 const renewProduct = async (id) => {
-    console.log('renew');
     try {
         productLoading.value = true;
         product.value = await store.dispatch('getProduct', id);
     } catch (error) {
         console.log(error);
     } finally {
-        console.log('renew end');
         productLoading.value = false;
     }
 };

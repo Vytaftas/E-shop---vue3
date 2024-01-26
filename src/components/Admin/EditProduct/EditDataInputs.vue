@@ -56,6 +56,24 @@
                 v-model="newProductData.description.value"
             />
         </div>
+        <div class="single-input-wrap">
+            <label class="input-label" for="long_description">Additional Info</label>
+            <Editor
+                id="long_description"
+                api-key="qdcud7bnxxiz7gzo7ceg2uvac0blnhua2pr3ibi1tb4gkym2"
+                :init="{
+                    toolbar_mode: 'sliding',
+                    menubar: 'edit insert view format table tools',
+                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+                    toolbar:
+                        'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                    setup(editor) {
+                        editor.on('change', () => checkIfChanged('long_description'));
+                    },
+                }"
+                v-model="newProductData.long_description.value"
+            />
+        </div>
     </div>
 </template>
 

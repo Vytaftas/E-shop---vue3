@@ -1,10 +1,14 @@
 <template>
-    <div v-if="product || addNew" class="product-wrap">
+    {{ productLoading }}
+    <div
+        v-if="(product && currentUser.expand.permissions_id.edit_products) || (addNew && currentUser.expand.permissions_id.add_products)"
+        class="product-wrap"
+    >
         <div class="heading-wrap">
             <h3 class="heading">
                 Manage Product <span v-if="!addNew" class="product-id">(ID: {{ product.id }})</span>
             </h3>
-            <button class="product-update-button button-main" @click="handleProductUpdate">Update</button>
+            <button class="product-update-button button-main" @click="handleProductUpdate">{{ addNew ? 'Add Product' : 'Update' }}</button>
         </div>
         <div class="main-product-form">
             <div class="top">
@@ -17,6 +21,7 @@
                                 discount_price: productData.discount_price,
                                 SKU: productData.SKU,
                                 description: productData.description,
+                                long_description: productData.long_description,
                             }"
                             :product="product"
                             @data-change="handleDataInputsChange"
@@ -63,6 +68,15 @@
             </div>
         </div>
     </div>
+    <div
+        v-if="
+            (!productLoading && product && !currentUser.expand.permissions_id.edit_products) ||
+            (!productLoading && addNew && !currentUser.expand.permissions_id.add_products)
+        "
+        class="no-permission"
+    >
+        You don't have permission to access this page.
+    </div>
     <LoadingOverlay class="overlay" v-if="productLoading" />
 </template>
 
@@ -86,6 +100,18 @@ const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
+const currentUser = computed(() => store.getters.currentUser);
+
+const isa = computed(() => currentUser.value.expand.permissions_id.edit_products);
+
+watch(currentUser, (userInfo) => {
+    console.log(userInfo);
+});
+
+watch(isa, (a) => {
+    console.log(a);
+});
+
 const productId = computed(() => route.params.id);
 const product = ref(null);
 const productLoading = ref(false);
@@ -98,6 +124,7 @@ const productData = reactive({
     name: { value: '', error: false },
     SKU: { value: '', changed: false },
     description: { value: '', changed: false },
+    long_description: { value: '', changed: false },
     price: { value: '', error: false },
     discount_price: { value: '', error: false },
     image: { value: '', changed: false },
@@ -238,6 +265,9 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.no-permission {
+    margin: auto;
+}
 .product-wrap {
     background-color: #f6faff;
     padding: 25px;

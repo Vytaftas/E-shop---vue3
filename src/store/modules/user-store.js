@@ -5,8 +5,6 @@ const getters = {
     currentUser: (state) => state.user,
 };
 
-const collectionName = 'users';
-
 const actions = {
     async getAllUsers({}, data) {
         try {
@@ -76,9 +74,10 @@ const actions = {
             });
         } catch (error) {
             dispatch('addNotification', {
-                message: 'Failed to log in',
+                message: 'Failed to Log In',
                 type: 'error',
             });
+            throw error;
         }
     },
 
@@ -100,7 +99,7 @@ const actions = {
         }
     },
 
-    async logout({ commit }) {
+    async logout({ commit, dispatch }) {
         try {
             await this.$db_api.logout();
 
@@ -133,6 +132,30 @@ const actions = {
             });
 
             throw new Error(error.message);
+        }
+    },
+
+    async getDashboardMessages() {
+        try {
+            return await this.$db_api.getDashboardMessages();
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    async addDashboardMessage({ dispatch }, data) {
+        try {
+            await this.$db_api.addDashboardMessage(data);
+            dispatch('addNotification', {
+                message: 'Message successfully added',
+                type: 'success',
+            });
+        } catch (error) {
+            console.log(error);
+            dispatch('addNotification', {
+                message: 'Failed to add message',
+                type: 'error',
+            });
         }
     },
 };

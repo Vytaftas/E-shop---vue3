@@ -1,14 +1,13 @@
 <template>
-    <div class="dashboard">
+    <div v-if="currentUser?.expand?.permissions_id?.is_admin" class="dashboard">
         <div class="sidebar">
             <div class="top-wrap">
                 <img class="logo" :src="logo" alt="website logo" />
                 <nav>
+                    <router-link class="sidebar-link" to="/dashboard">Dashboard</router-link>
                     <router-link class="sidebar-link" to="/dashboard/manage-products">Products</router-link>
                     <router-link class="sidebar-link" to="/dashboard/manage-metadata">Products Metadata</router-link>
-
                     <router-link class="sidebar-link" to="/dashboard/manage-categories">Categories</router-link>
-
                     <router-link class="sidebar-link" to="/dashboard/manage-users">Users</router-link>
                 </nav>
             </div>
@@ -20,11 +19,14 @@
             <router-view></router-view>
         </div>
     </div>
+    <LoadingOverlay v-else background="transparent" color="black" />
 </template>
 
 <script setup>
+import { computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import LoadingOverlay from '../components/LoadingOverlay.vue';
 import logo from '../assets/logo.svg';
 
 const store = useStore();
@@ -38,9 +40,20 @@ const handleLogout = async () => {
         console.log(error);
     }
 };
+
+const currentUser = computed(() => store.getters.currentUser);
+
+watch(currentUser, (userInfo) => {
+    console.log(userInfo);
+    if (!userInfo) return router.push('/my-account/login');
+    if (!userInfo?.expand?.permissions_id?.is_admin) return router.push('/my-account/login');
+});
 </script>
 
 <style scoped>
+.dashboard {
+    position: relative;
+}
 .logo {
     padding: 20px 30px;
     display: flex;
@@ -93,5 +106,6 @@ const handleLogout = async () => {
 
 .content {
     overflow: auto;
+    display: grid;
 }
 </style>

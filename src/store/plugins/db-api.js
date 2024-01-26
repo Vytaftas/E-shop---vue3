@@ -348,4 +348,23 @@ export const DB_API = (store) =>
                 console.log(error);
             }
         },
+
+        async getDashboardMessages() {
+            try {
+                return await PocketBaseDB.collection('dashboard_messages').getFullList({
+                    sort: '-created',
+                    expand: 'user',
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        },
+
+        async addDashboardMessage(data) {
+            try {
+                return await PocketBaseDB.collection('dashboard_messages').create(data);
+            } catch (error) {
+                console.log(error);
+            }
+        },
     });

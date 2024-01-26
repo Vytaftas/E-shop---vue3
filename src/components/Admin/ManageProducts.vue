@@ -1,14 +1,19 @@
-<template class="temp">
+<template>
     <div class="manage-products-wrapper">
         <LoadingOverlay v-if="productsLoading" background="transparent" color="black" />
         <div class="manage-products">
             <h3 class="heading">Manage Products</h3>
 
             <div class="options-wrap">
-                <router-link to="/dashboard/manage-products/add-new" class="add-new-wrap">
+                <router-link to="/dashboard/manage-products/add-new" class="add-new-wrap" v-if="currentUser?.expand?.permissions_id?.add_products">
                     <i class="fa-solid fa-square-plus"></i>
                     <span>Add New</span>
                 </router-link>
+
+                <p v-else class="add-new-wrap" @click="addNotification('Permission denied', 'error')">
+                    <i class="fa-solid fa-square-plus"></i>
+                    <span>Add New</span>
+                </p>
 
                 <div class="products-per-page">
                     <span class="products-per-page-text">Products per page: </span>
@@ -49,11 +54,22 @@
                                     >View</router-link
                                 >
                                 <router-link
+                                    v-if="currentUser?.expand?.permissions_id?.edit_products"
                                     :to="`/dashboard/manage-products/${product.id}`"
                                     class="product-option-button link-underline product-edit"
                                     >Edit</router-link
                                 >
-                                <span class="product-option-button link-underline product-copy" @click="handleDuplicateProduct(product)"
+                                <p
+                                    class="product-option-button link-underline product-edit"
+                                    @click="addNotification('Permission denied', 'error')"
+                                    v-else
+                                >
+                                    Edit
+                                </p>
+
+                                <span
+                                    class="product-option-button link-underline product-copy"
+                                    @click="checkPermissions(() => handleDuplicateProduct(product), 'add_products')"
                                     >Duplicate</span
                                 >
                             </div>
@@ -78,7 +94,10 @@
                             <p>{{ productCreatedTime(product.created) }}</p>
                         </div>
                         <div class="product-delete-wrap">
-                            <i @click="handleProductDelete(product.id)" class="fa-solid fa-trash product-delete"></i>
+                            <i
+                                @click="checkPermissions(() => handleProductDelete(product.id), 'delete_products')"
+                                class="fa-solid fa-trash product-delete"
+                            ></i>
                         </div>
                     </div>
                 </div>
@@ -96,13 +115,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import useProductImage from '../../hooks/useProductImage';
 import LoadingOverlay from '../LoadingOverlay.vue';
 import Pagination from '../Misc/Pagination.vue';
+import addNotification from '../../helpers/addNotification';
 
 const store = useStore();
+
+const currentUser = computed(() => store.getters.currentUser);
 
 const products = ref([]);
 const paginationData = ref(null);
@@ -134,7 +156,14 @@ const getProducts = async ({ page = 1, amount = productsPerPage.value }) => {
     }
 };
 
+const checkPermissions = (func, permission) => {
+    if (currentUser.value?.expand?.permissions_id[permission] === true) return func();
+
+    addNotification('Permission denied', 'error');
+};
+
 const handleProductDelete = async (id) => {
+    console.log('delete');
     if (window.confirm('Are you sure you want to delete this product?')) {
         try {
             await store.dispatch('deleteProduct', id);
@@ -152,13 +181,14 @@ const handleProductDelete = async (id) => {
 };
 
 const handleDuplicateProduct = async (product) => {
-    const { categories, description, discount_price, meta_data, name, price, gallery_images, image } = product;
+    const { categories, description, discount_price, meta_data, name, price, gallery_images, image, long_description, product_meta } = product;
 
     const productData = {
         categories,
         description,
+        long_description,
         discount_price,
-        meta_data,
+        product_meta,
         name: `${name} - Copy`,
         price,
         gallery_images,
@@ -205,9 +235,10 @@ const handleDuplicateProduct = async (product) => {
             continue;
         }
 
-        if (key === 'meta_data') {
-            const mData = JSON.stringify(productData[key]);
-            data.append(key, mData);
+        if (key === 'product_meta') {
+            for (let meta of productData[key]) {
+                data.append(key, meta);
+            }
             continue;
         }
 

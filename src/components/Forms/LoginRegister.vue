@@ -1,80 +1,89 @@
 <template>
-    <form @submit.prevent="handleSubmit">
-        <img class="logo" :src="logo" alt="" />
-        <h3>{{ register ? 'Register' : 'Log In' }}</h3>
-
-        <div class="single-input-wrapper">
-            <label for="username">{{ register ? 'Username' : 'Username or Email' }}</label>
-            <input
-                type="text"
-                required
-                maxlength="60"
-                placeholder="Enter your username or email.."
-                v-model.trim="username"
-                @input="errors.username = null"
-            />
-            <span class="error-message" v-if="errors.username">{{ errors.username }}</span>
+    <div class="form-wrap">
+        <div class="login-info-message" v-if="showInfoMessage && !register">
+            <p>To Log In as an admin use:</p>
+            <span>Login: admin</span>
+            <span>Password: adminadmin</span>
+            <i class="fa-solid fa-xmark close-info-message" @click="showInfoMessage = false"></i>
         </div>
 
-        <div v-if="register" class="single-input-wrapper">
-            <label for="email">Email</label>
-            <input
-                type="text"
-                required
-                maxlength="60"
-                placeholder="Enter your username or email.."
-                v-model.trim="email"
-                @input="errors.email = null"
-            />
-            <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
-        </div>
+        <form @submit.prevent="handleSubmit">
+            <img class="logo" :src="logo" alt="" />
+            <h3>{{ register ? 'Register' : 'Log In' }}</h3>
 
-        <div class="single-input-wrapper">
-            <label for="password">Password</label>
-
-            <div class="input-wrap">
+            <div class="single-input-wrapper">
+                <label for="username">{{ register ? 'Username' : 'Username or Email' }}</label>
                 <input
-                    :type="showPassword ? 'text' : 'password'"
+                    type="text"
                     required
-                    minlength="8"
-                    placeholder="Enter your password.."
-                    v-model.trim="password"
-                    @input="errors.password = null"
+                    maxlength="60"
+                    placeholder="Enter your username or email.."
+                    v-model.trim="username"
+                    @input="errors.username = null"
                 />
-                <i @click="showPassword = !showPassword" class="fa-solid fa-eye show-password"></i>
+                <span class="error-message" v-if="errors.username">{{ errors.username }}</span>
             </div>
 
-            <span class="error-message" v-if="errors.password">{{ errors.password }}</span>
-        </div>
-
-        <div v-if="register" class="single-input-wrapper">
-            <label for="password">Confirm Password</label>
-
-            <div class="input-wrap">
+            <div v-if="register" class="single-input-wrapper">
+                <label for="email">Email</label>
                 <input
-                    :type="showPasswordConfirm ? 'text' : 'password'"
+                    type="text"
                     required
-                    minlength="8"
-                    placeholder="Repeat password.."
-                    v-model.trim="passwordConfirm"
-                    @input="errors.passwordConfirm = null"
+                    maxlength="60"
+                    placeholder="Enter your username or email.."
+                    v-model.trim="email"
+                    @input="errors.email = null"
                 />
-                <i @click="showPasswordConfirm = !showPasswordConfirm" class="fa-solid fa-eye show-password"></i>
+                <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
             </div>
-            <span class="error-message" v-if="errors.passwordConfirm">{{ errors.passwordConfirm }}</span>
-        </div>
 
-        <span class="error-message" v-if="errors.global">{{ errors.global }}</span>
+            <div class="single-input-wrapper">
+                <label for="password">Password</label>
 
-        <button type="submit" class="login-button">{{ loading ? 'Please wait..' : buttonText }}</button>
+                <div class="input-wrap">
+                    <input
+                        :type="showPassword ? 'text' : 'password'"
+                        required
+                        minlength="8"
+                        placeholder="Enter your password.."
+                        v-model.trim="password"
+                        @input="errors.password = null"
+                    />
+                    <i @click="showPassword = !showPassword" class="fa-solid fa-eye show-password"></i>
+                </div>
 
-        <span class="footer-action"
-            >Don't have an account?
-            <router-link :to="register ? '/my-account/login' : '/my-account/register'" class="register-button">{{
-                footerActionText
-            }}</router-link></span
-        >
-    </form>
+                <span class="error-message" v-if="errors.password">{{ errors.password }}</span>
+            </div>
+
+            <div v-if="register" class="single-input-wrapper">
+                <label for="password">Confirm Password</label>
+
+                <div class="input-wrap">
+                    <input
+                        :type="showPasswordConfirm ? 'text' : 'password'"
+                        required
+                        minlength="8"
+                        placeholder="Repeat password.."
+                        v-model.trim="passwordConfirm"
+                        @input="errors.passwordConfirm = null"
+                    />
+                    <i @click="showPasswordConfirm = !showPasswordConfirm" class="fa-solid fa-eye show-password"></i>
+                </div>
+                <span class="error-message" v-if="errors.passwordConfirm">{{ errors.passwordConfirm }}</span>
+            </div>
+
+            <span class="error-message" v-if="errors.global">{{ errors.global }}</span>
+
+            <button type="submit" class="login-button">{{ loading ? 'Please wait..' : buttonText }}</button>
+
+            <span class="footer-action"
+                >Don't have an account?
+                <router-link :to="register ? '/my-account/login' : '/my-account/register'" class="register-button">{{
+                    footerActionText
+                }}</router-link></span
+            >
+        </form>
+    </div>
 </template>
 
 <script setup>
@@ -107,6 +116,8 @@ const errors = reactive({
     passwordConfirm: null,
     global: null,
 });
+
+const showInfoMessage = ref(true);
 
 const handleSubmit = async () => {
     errors.global = null;
@@ -210,13 +221,6 @@ h3 {
     font-size: 14px;
 }
 
-p {
-    text-align: center;
-    font-size: 20px;
-    font-weight: 500;
-    padding: 10px 0;
-}
-
 .show-password {
     position: absolute;
     right: 10px;
@@ -233,5 +237,30 @@ p {
 
 .footer-action {
     text-align: center;
+}
+
+.login-info-message {
+    background-color: rgb(255 0 0 / 27%);
+    border-radius: 5px;
+    box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.212);
+    margin-bottom: 20px;
+    padding: 20px;
+    position: relative;
+}
+
+.login-info-message p {
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.login-info-message span {
+    display: block;
+}
+
+.close-info-message {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 </style>

@@ -3,12 +3,15 @@
         <LoadingOverlay v-if="metaLoading" background="transparent" color="black" />
         <div class="manage-metas">
             <h3 class="heading">Manage Products Metadata</h3>
-            <div class="add-new-wrap" @click="showAddMeta = !showAddMeta">
+            <div
+                class="add-new-wrap"
+                @click="currentUser.expand.permissions_id.add_products ? (showAddMeta = !showAddMeta) : addNotification('Permission denied', 'error')"
+            >
                 <i class="fa-solid fa-square-plus"></i>
                 <span>Add New</span>
             </div>
             <div class="add-meta-wrap" :class="{ expanded: showAddMeta }">
-                <form @submit.prevent="handleAddNewMeta" class="add-meta-content">
+                <form @submit.prevent="checkPermissions(handleAddNewMeta, 'add_products')" class="add-meta-content">
                     <div class="add-meta-content-heading">
                         <h3 class="meta-block-name">Add New</h3>
                     </div>
@@ -51,7 +54,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="button-main add-new-button">Add New</button>
+                    <button type="submit" class="button-main add-new-button">{{ metaAdding ? 'Adding..' : 'Add New' }}</button>
                 </form>
             </div>
 
@@ -95,10 +98,16 @@
                                 </div>
 
                                 <div class="meta-actions-wrap">
-                                    <p class="save-meta link-underline" @click="saveMeta(value.id, mainMetaKey, index)">
+                                    <p
+                                        class="save-meta link-underline"
+                                        @click="checkPermissions(() => saveMeta(value.id, mainMetaKey, index), 'edit_products')"
+                                    >
                                         {{ metaSaving[mainMetaKey][index] ? 'Saving..' : 'Save' }}
                                     </p>
-                                    <p class="delete-meta link-underline" @click="deleteMeta(value.id, mainMetaKey, index)">
+                                    <p
+                                        class="delete-meta link-underline"
+                                        @click="checkPermissions(() => deleteMeta(value.id, mainMetaKey, index), 'delete_products')"
+                                    >
                                         {{ metaDeleting[mainMetaKey][index] ? 'Deleting..' : 'Delete' }}
                                     </p>
                                 </div>
@@ -117,18 +126,22 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { useStore } from 'vuex';
 import isValidHexCode from '../../helpers/isValidHexCode';
 import LoadingOverlay from '../LoadingOverlay.vue';
+import addNotification from '../../helpers/addNotification';
 
 const store = useStore();
+
+const currentUser = computed(() => store.getters.currentUser);
 
 const meta = ref(null);
 
 const newMeta = ref(null);
 
 const metaLoading = ref(false);
+const metaAdding = ref(false);
 const metaSaving = reactive({});
 const metaDeleting = reactive({});
 
@@ -138,6 +151,12 @@ const addNewMetaDataValues = reactive({
     name: { value: '', error: false },
     value: { value: '', error: false },
 });
+
+const checkPermissions = (func, permission) => {
+    if (currentUser.value?.expand?.permissions_id[permission]) return func();
+
+    addNotification('Permission denied', 'error');
+};
 
 const resetNewMetaValues = () => Object.keys(addNewMetaDataValues).forEach((key) => (addNewMetaDataValues[key].value = ''));
 
@@ -162,11 +181,14 @@ const handleAddNewMeta = async () => {
 
     try {
         metaLoading.value = true;
+        metaAdding.value = true;
         await store.dispatch('addMetaData', data);
         resetNewMetaValues();
         await getAllMetaData();
     } catch (error) {
         console.log(error);
+    } finally {
+        metaAdding.value = false;
     }
 };
 
@@ -276,7 +298,6 @@ onMounted(() => {
 .add-meta-wrap {
     display: grid;
     grid-template-rows: 0fr;
-    /* overflow: hidden; */
     transition: 0.3s;
 }
 
