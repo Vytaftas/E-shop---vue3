@@ -5,6 +5,6 @@
 </template>
 
 <script setup>
-import Notification from './components/Notification.vue';
+import Notification from './components/Misc/Notification.vue';
 import Modal from './components/Misc/Modal.vue';
 </script>

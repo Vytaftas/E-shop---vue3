@@ -1,5 +1,4 @@
 <template>
-    {{ productLoading }}
     <div
         v-if="(product && currentUser.expand.permissions_id.edit_products) || (addNew && currentUser.expand.permissions_id.add_products)"
         class="product-wrap"
@@ -90,7 +89,7 @@ import EditDataInputs from './EditDataInputs.vue';
 import EditReviews from './EditReviews.vue';
 import EditImages from './EditImages.vue';
 import ChipMultiSelect from '../../Misc/ChipMultiSelect.vue';
-import LoadingOverlay from '../../LoadingOverlay.vue';
+import LoadingOverlay from '../../Misc/LoadingOverlay.vue';
 
 const props = defineProps({
     addNew: { default: false },

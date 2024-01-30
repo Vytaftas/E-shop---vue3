@@ -2,7 +2,9 @@
     <div v-if="currentUser?.expand?.permissions_id?.is_admin" class="dashboard">
         <div class="sidebar">
             <div class="top-wrap">
-                <img class="logo" :src="logo" alt="website logo" />
+                <router-link to="/">
+                    <img class="logo" :src="logo" alt="website logo" />
+                </router-link>
                 <nav>
                     <router-link class="sidebar-link" to="/dashboard">Dashboard</router-link>
                     <router-link class="sidebar-link" to="/dashboard/manage-products">Products</router-link>
@@ -26,7 +28,7 @@
 import { computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import LoadingOverlay from '../components/LoadingOverlay.vue';
+import LoadingOverlay from '../components/Misc/LoadingOverlay.vue';
 import logo from '../assets/logo.svg';
 
 const store = useStore();
@@ -42,12 +44,30 @@ const handleLogout = async () => {
 };
 
 const currentUser = computed(() => store.getters.currentUser);
+const currentRoute = computed(() => router.currentRoute.value);
 
-watch(currentUser, (userInfo) => {
-    console.log(userInfo);
-    if (!userInfo) return router.push('/my-account/login');
-    if (!userInfo?.expand?.permissions_id?.is_admin) return router.push('/my-account/login');
-});
+watch(
+    () => currentRoute,
+    (newRouteVal, oldRouteVal) => {
+        if (!oldRouteVal?.value) return;
+
+        const isInDashboard = oldRouteVal.value.fullPath.includes('dashboard');
+        const newIsInDashboard = newRouteVal.value.fullPath.includes('dashboard');
+        const isAdmin = currentUser.value.expand.permissions_id.is_admin;
+
+        if (isInDashboard && newIsInDashboard && !isAdmin) router.push('/');
+    },
+    { deep: true, immediate: true }
+);
+
+watch(
+    currentUser,
+    (userInfo) => {
+        if (!userInfo) return router.push('/my-account/login');
+        if (!userInfo?.expand?.permissions_id?.is_admin) return router.push('/my-account/login');
+    },
+    { deep: true }
+);
 </script>
 
 <style scoped>

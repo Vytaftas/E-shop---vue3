@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { inject, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 import { useStore } from 'vuex';
 import ToggleSwitch from '../Misc/ToggleSwitch.vue';
 
@@ -38,7 +38,7 @@ const handlePermissionsSave = async (permissionsId) => {
     try {
         permissionsSaving.value = true;
         await store.dispatch('updatePermissions', { permissionsId, data: newData.value.permissions });
-        eventBus.emit('permissions-save');
+        eventBus.emit('permissions-save', props.data.permissions.id);
         store.dispatch('closeModal');
     } catch (error) {
         console.log(error);
@@ -58,6 +58,10 @@ const permissionsData = (permissions) => {
         'add_users',
         'edit_users',
         'delete_users',
+        'add_permissions',
+        'edit_permissions',
+        'delete_permissions',
+        'is_admin',
     ];
     return Object.fromEntries(Object.entries(permissions).filter(([key]) => fields.includes(key)));
 };

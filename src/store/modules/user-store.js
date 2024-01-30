@@ -42,6 +42,8 @@ const actions = {
                 message: 'Failed to update user',
                 type: 'error',
             });
+
+            throw error;
         }
     },
 
@@ -151,17 +153,26 @@ const actions = {
                 type: 'success',
             });
         } catch (error) {
-            console.log(error);
             dispatch('addNotification', {
                 message: 'Failed to add message',
                 type: 'error',
             });
         }
     },
+
+    async renewPermissions({ commit }, id) {
+        try {
+            const permissions = await this.$db_api.renewPermissions(id);
+            commit('ADD_PERMISSIONS', permissions);
+        } catch (error) {
+            console.log(error);
+        }
+    },
 };
 
 const mutations = {
     ADD_CURRENT_USER: (state, user) => (state.user = user),
+    ADD_PERMISSIONS: (state, permissions) => (state.user.expand.permissions_id = permissions),
 };
 
 export default {

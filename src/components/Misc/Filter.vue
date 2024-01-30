@@ -44,7 +44,7 @@
 <script setup>
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import isValidHexCode from '../helpers/isValidHexCode';
+import isValidHexCode from '../../helpers/isValidHexCode';
 import CustomCheckbox from './CustomCheckbox.vue';
 import LoadingOverlay from './LoadingOverlay.vue';
 

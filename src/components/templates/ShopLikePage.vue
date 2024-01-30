@@ -16,8 +16,8 @@
 <script setup>
 import ProductsList from '../Products/ProductsList.vue';
 import ProductsListSkeleton from '../Skeletons/ProductsListSkeleton.vue';
-import Filter from '../Filter.vue';
-import PathLinks from '../PathLinks.vue';
+import Filter from '../Misc/Filter.vue';
+import PathLinks from '../Misc/PathLinks.vue';
 import Pagination from '../Misc/Pagination.vue';
 
 const props = defineProps({

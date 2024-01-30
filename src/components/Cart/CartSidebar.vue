@@ -41,7 +41,7 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import ProductsList from '../Products/ProductsList.vue';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 import useCart from '../../hooks/useCart';
 
 const store = useStore();

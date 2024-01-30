@@ -46,7 +46,7 @@
 import { computed, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import StarRating from '../Products/StarRating.vue';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 
 const props = defineProps({
     product: { default: null },

@@ -4,7 +4,7 @@ import SingleProduct from '../view/SingleProductPage.vue';
 import SingleCategory from '../view/SingleCategory.vue';
 import Categories from '../view/Categories.vue';
 import Shop from '../view/Shop.vue';
-import About from '../view/About.vue';
+import About from '../view/AboutUs.vue';
 import NotFound from '../view/NotFound.vue';
 import MyAccount from '../view/MyAccount.vue';
 import HomePage from '../view/HomePage.vue';
@@ -17,7 +17,12 @@ import ManageUsers from '../components/Admin/ManageUsers.vue';
 import Dashboard from '../components/Admin/Dashboard.vue';
 import EditProduct from '../components/Admin/EditProduct/EditProduct.vue';
 
-import store from '../store/index';
+// My Account
+import AccountDashboard from '../components/MyAccount/AccountDashboard.vue';
+import UserInformation from '../components/MyAccount/UserInformation.vue';
+import Orders from '../components/MyAccount/Orders.vue';
+import Communication from '../components/MyAccount/Communication.vue';
+import ChangePassword from '../components/MyAccount/ChangePassword.vue';
 
 const routes = [
     {
@@ -49,22 +54,37 @@ const routes = [
             { name: 'Category', path: '/shop/categories/:categoryName', component: SingleCategory },
             { name: 'About', path: '/about-us/', component: About },
             { name: 'NotFound', path: '/:pathMatch(.*)*', component: NotFound },
+            { name: 'Login', path: 'login', component: LoginRegister, props: { register: false } },
+            { name: 'Register', path: 'register', component: LoginRegister, props: { register: true } },
             {
                 name: 'My Account',
                 path: '/my-account/',
                 component: MyAccount,
                 children: [
                     {
-                        name: 'Login',
-                        path: 'login',
-                        component: LoginRegister,
-                        props: { register: false },
+                        name: 'Dashboard',
+                        path: '',
+                        component: AccountDashboard,
                     },
                     {
-                        name: 'Register',
-                        path: 'register',
-                        component: LoginRegister,
-                        props: { register: true },
+                        name: 'User Information',
+                        path: 'user-information',
+                        component: UserInformation,
+                    },
+                    {
+                        name: 'Orders',
+                        path: 'orders',
+                        component: Orders,
+                    },
+                    {
+                        name: 'Communication',
+                        path: 'communication',
+                        component: Communication,
+                    },
+                    {
+                        name: 'Change Password',
+                        path: 'change-password',
+                        component: ChangePassword,
                     },
                 ],
             },

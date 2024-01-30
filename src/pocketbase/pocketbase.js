@@ -15,12 +15,12 @@ PocketBaseDB.autoCancellation(false);
 
         const userId = currentUser.id;
 
-        const userData = await PocketBaseDB.collection('users').getOne(userId, { expand: 'permissions_id' });
+        const userData = await PocketBaseDB.collection('users').getOne(userId, { expand: 'permissions_id, user_info' });
         store.commit('ADD_CURRENT_USER', userData);
 
         await store.dispatch('getCartItems', userData.cart_id);
     } catch (error) {
-        console.log(error);
+        console.log(error.response);
         store.commit('ADD_CURRENT_USER', null);
         throw new Error(error.message);
     }

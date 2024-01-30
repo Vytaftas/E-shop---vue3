@@ -50,7 +50,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import ProductsList from '../components/Products/ProductsList.vue';
-import ImageSlider from '../components/ImageSlider.vue';
+import ImageSlider from '../components/Misc/ImageSlider.vue';
 import bg1 from '../assets/hero/sneakers1.png';
 import bg2 from '../assets/hero/sneakers2.png';
 import bg3 from '../assets/hero/sneakers3.png';

@@ -5,9 +5,8 @@
             <h3 class="heading">Manage Categories</h3>
             <div
                 class="add-new-wrap"
-                @click="currentUser.expand.permissions_id.add_categories ? addNewCategory : addNotification('Permission denied', 'error')"
+                @click="currentUser.expand.permissions_id.add_categories ? addNewCategory() : addNotification('Permission denied', 'error')"
             >
-                /// ENDED HERE, everything works
                 <i class="fa-solid fa-square-plus"></i>
                 <span>Add New</span>
             </div>
@@ -76,7 +75,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import NoImage from '../../assets/no-image.png';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 import addNotification from '../../helpers/addNotification';
 
 const store = useStore();
@@ -141,6 +140,7 @@ const saveCategory = async (categoryId, index) => {
         if (newCategories.value[index].new) {
             await store.dispatch('addCategory', data);
             delete newCategories.value[index].new;
+            getAvailableCategories();
         } else {
             await store.dispatch('updateCategory', { categoryId, data });
         }
@@ -152,6 +152,8 @@ const saveCategory = async (categoryId, index) => {
 };
 
 const deleteCategory = async (categoryId, index) => {
+    if (newCategories.value[index].new) return newCategories.value.splice(index, 1);
+    // newCategories.value.unshift({ name: 'New Category', link: 'category-link', image: '', new: true });
     const isConfirmed = window.confirm('Are you sure you want to delete this category?');
 
     if (!isConfirmed) return;

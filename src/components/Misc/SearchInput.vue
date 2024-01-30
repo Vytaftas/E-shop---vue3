@@ -1,12 +1,31 @@
 <template>
     <div class="search-wrap">
-        <input class="search-input" :class="{ visible: searchVisible }" placeholder="Search our website.." type="text" />
+        <input class="search-input" :class="{ visible: searchVisible }" placeholder="Search our website.." type="text" v-model.trim="searchInput" />
         <i class="fa-solid fa-magnifying-glass search-icon" @click="searchVisible = !searchVisible"></i>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { useStore } from 'vuex';
+
+const store = useStore();
+
+const maxResults = ref(8);
+
+const searchInput = ref('');
+const searchTimeoutId = ref(null);
+
+watch(searchInput, (value) => {
+    if (!value) return;
+
+    clearTimeout(searchTimeoutId.value);
+
+    searchTimeoutId.value = setTimeout(() => {
+        console.log(value);
+        console.log('searching');
+    }, 1000);
+});
 
 const searchVisible = ref(false);
 </script>

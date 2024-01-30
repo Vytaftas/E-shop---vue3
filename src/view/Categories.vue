@@ -13,7 +13,7 @@
 import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import Categories from '../components/Categories.vue';
-import LoadingOverlay from '../components/LoadingOverlay.vue';
+import LoadingOverlay from '../components/Misc/LoadingOverlay.vue';
 
 const store = useStore();
 const categories = ref([]);

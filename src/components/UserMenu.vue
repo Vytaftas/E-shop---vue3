@@ -32,6 +32,8 @@ const handleLogout = async () => {
     try {
         await store.dispatch('logout');
         userMenuVisible.value = false;
+
+        if (router.currentRoute.value.fullPath !== '/') router.push('/');
     } catch (error) {
         console.log(error);
     }

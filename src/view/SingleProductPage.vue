@@ -20,8 +20,8 @@ import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import SingleProduct from '../components/Products/SingleProduct.vue';
 import getProductRating from '../helpers/getProductRating';
-import LoadingOverlay from '../components/LoadingOverlay.vue';
-import PathLinks from '../components/PathLinks.vue';
+import LoadingOverlay from '../components/Misc/LoadingOverlay.vue';
+import PathLinks from '../components/Misc/PathLinks.vue';
 
 const store = useStore();
 

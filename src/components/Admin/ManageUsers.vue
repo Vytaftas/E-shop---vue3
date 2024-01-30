@@ -3,7 +3,10 @@
         <LoadingOverlay v-if="usersLoading" background="transparent" color="black" />
         <div class="manage-users">
             <h3 class="heading">Manage Users</h3>
-            <div class="add-new-wrap" @click="addNewUser">
+            <div
+                class="add-new-wrap"
+                @click="currentUser.expand.permissions_id.add_users ? addNewUser() : addNotification('Permission denied', 'error')"
+            >
                 <i class="fa-solid fa-square-plus"></i>
                 <span>Add New</span>
             </div>
@@ -54,14 +57,18 @@
                         </div>
 
                         <div class="user-permissions-wrap">
-                            <span @click="handleOpenModal(user?.expand?.permissions_id, index)" class="link-underline edit-button">Edit</span>
+                            <span
+                                @click="checkPermissions(() => handleOpenModal(user?.expand?.permissions_id, index), 'edit_permissions')"
+                                class="link-underline edit-button"
+                                >Edit</span
+                            >
                         </div>
 
                         <div class="user-actions-wrap">
-                            <button class="button-main save-button" @click="saveUser(user.id, index)">
+                            <button class="button-main save-button" @click="checkPermissions(() => saveUser(user.id, index), 'edit_users')">
                                 {{ usersSaving[index] ? 'Saving..' : 'Save' }}
                             </button>
-                            <button class="button-main delete-button" @click="deleteUser(user, index)">
+                            <button class="button-main delete-button" @click="checkPermissions(() => deleteUser(user, index), 'delete_users')">
                                 {{ usersDeleting[index] ? 'Deleting..' : 'Delete' }}
                             </button>
                         </div>
@@ -73,14 +80,23 @@
 </template>
 
 <script setup>
-import { inject, markRaw, onMounted, reactive, ref, watch } from 'vue';
+import { computed, inject, markRaw, onMounted, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import NoImage from '../../assets/no-image.png';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 import EditPermissions from '../Forms/EditPermissions.vue';
 import generatePassword from '../../helpers/generatePassword';
+import addNotification from '../../helpers/addNotification';
 
 const store = useStore();
+
+const currentUser = computed(() => store.getters.currentUser);
+
+const checkPermissions = (func, permission) => {
+    if (currentUser.value?.expand?.permissions_id[permission]) return func();
+
+    addNotification('Permission denied', 'error');
+};
 
 const eventBus = inject('eventBus');
 
@@ -93,7 +109,17 @@ const usersLoading = ref(false);
 const usersSaving = reactive({});
 const usersDeleting = reactive({});
 
-eventBus.on('permissions-save', () => getAllUsers());
+eventBus.on('permissions-save', async (savedPermissionsId) => {
+    const currentPermissionsId = currentUser.value.expand.permissions_id.id;
+    if (savedPermissionsId === currentPermissionsId) {
+        try {
+            await store.dispatch('renewPermissions', currentPermissionsId);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    getAllUsers();
+});
 eventBus.on('new-permissions-save', (data) => {
     newUsers.value[data.index].expand = { permissions_id: data.permissions };
 });

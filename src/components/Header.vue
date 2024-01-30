@@ -33,6 +33,7 @@
                     </li>
                 </ul>
             </nav>
+            <p @click="store.dispatch('logout')">logoit</p>
             <div class="user-content">
                 <SearchInput />
                 <UserMenu />

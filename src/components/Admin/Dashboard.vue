@@ -8,7 +8,7 @@
 
                 <div class="dashboard-message-wrap">
                     <form class="message-form" @submit.prevent="addNewMessage">
-                        <p class="form-description">Leave a dashboard message for other users or developer.</p>
+                        <p class="form-description">Leave a message for other users or developer.</p>
                         <div class="single-input-wrap">
                             <label for="name-input">Your Name</label>
                             <input
@@ -66,7 +66,7 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useStore } from 'vuex';
 import formatDate from '../../helpers/formatDate';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 
 const store = useStore();
 const currentUser = computed(() => store.getters.currentUser);

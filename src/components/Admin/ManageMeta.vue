@@ -129,7 +129,7 @@
 import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { useStore } from 'vuex';
 import isValidHexCode from '../../helpers/isValidHexCode';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 import addNotification from '../../helpers/addNotification';
 
 const store = useStore();

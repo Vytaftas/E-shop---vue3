@@ -118,7 +118,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import useProductImage from '../../hooks/useProductImage';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 import Pagination from '../Misc/Pagination.vue';
 import addNotification from '../../helpers/addNotification';
 

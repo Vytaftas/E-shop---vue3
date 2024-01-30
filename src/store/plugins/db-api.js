@@ -131,7 +131,7 @@ export const DB_API = (store) =>
             const { userId, userData } = data;
 
             try {
-                return await PocketBaseDB.collection('users').update(userId, userData);
+                await PocketBaseDB.collection('users').update(userId, userData);
             } catch (error) {
                 throw error;
             }
@@ -366,5 +366,11 @@ export const DB_API = (store) =>
             } catch (error) {
                 console.log(error);
             }
+        },
+
+        async renewPermissions(id) {
+            try {
+                return await PocketBaseDB.collection('permissions').getOne(id);
+            } catch (error) {}
         },
     });

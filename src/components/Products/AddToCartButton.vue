@@ -14,7 +14,7 @@
 
 <script setup>
 import useAddToCart from '../../hooks/useAddToCart';
-import LoadingOverlay from '../LoadingOverlay.vue';
+import LoadingOverlay from '../Misc/LoadingOverlay.vue';
 
 const props = defineProps({
     product: { default: {} },
